@@ -1,0 +1,26 @@
+#:kivy 2.1.0
+
+#:import cradle Cradle
+#:import lullaby Lullaby
+#:import setting Setting
+#:import air_quality AirQuality
+#:import humidity Humidity
+#:import tempature Tempature
+
+MainPageLayout:
+
+<MainPageLayout@PageLayout>:
+    
+    BoxLayout:
+    
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            # TempatureBoxLayout:
+            AirQualityBoxLayout:
+            HumidityBoxLayout:
+
+        CradleBoxLayout:
+        LullabyWidget:
+
+    SettingGridLayout:

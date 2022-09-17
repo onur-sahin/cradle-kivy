@@ -1,0 +1,47 @@
+#:kivy 2.1.0
+
+<CradleBoxLayout>:
+
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.4, 0.5, 1
+        Rectangle:
+            # self here refers to the widget i.e FloatLayout
+            pos: self.pos
+            size: self.size
+
+    orientation: 'vertical'
+
+    ProgressBar:
+        max: 100
+        value: int()
+
+    Label:
+        text: "buraya mesajlar yazılacak"
+        height: "50"
+
+    GridLayout:
+        cols: 2
+
+        Slider:
+            id: slider_speed
+            min: 0
+            max: 100
+            value: 25
+            on_touch_move: root.on_touch_move_speed_slider(self)
+        
+    GridLayout:
+        cols: 4
+        
+        Button:
+            id: btn_cradle
+            text: 'CRADLE'
+            on_press: root.on_press_btn_cradle(slider_speed.value)
+
+        Button:
+            id: btn_stop
+            text: 'STOP'
+            on_press: root.on_press_btn_stop()
+
+        Button:
+            text: 'CALL MOM'

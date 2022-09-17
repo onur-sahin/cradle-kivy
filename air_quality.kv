@@ -1,0 +1,18 @@
+#:kivy 2.1.0
+
+
+<AirQualityBoxLayout>:
+
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.4, 0.5, 1
+        Rectangle:
+            # self here refers to the widget i.e FloatLayout
+            pos: self.pos
+            size: self.size
+
+    orientation: 'vertical'
+
+    Label:
+        id: airQualityLabel
+        text: str(root.airQuality)

@@ -1,0 +1,5 @@
+python -m pip install --pre "kivy[full]" kivy_examples
+sudo apt-get install python-pyaudio
+sudo apt-get install llvm
+sudo pip3 install adafruit-blinka
+sudo pip3 install adafruit-circuitpython-mcp3xxx

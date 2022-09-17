@@ -1,0 +1,18 @@
+#:kivy 2.1.0
+
+
+<SettingGridLayout@GridLayout>:
+
+    canvas.before:
+        Color:
+            rgba: 0, 1, 1, 1
+        Rectangle:
+            # self here refers to the widget i.e FloatLayout
+            pos: self.pos
+            size: self.size
+ 
+    cols: 4
+    Button:
+        text: 'name'
+    Button:
+        text: 'lastname'

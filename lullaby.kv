@@ -1,0 +1,57 @@
+#:kivy 2.1.0
+
+<LullabyWidget>:
+
+    Slider:
+        orientation: "vertical"
+        id: slider_sound
+        min: 0
+        max: 100
+        value: 50
+        on_touch_move: root.on_touch_music_volume_slider(self)
+    
+
+    Button:
+        text:"play"
+        on_press: root.play()
+    Button:
+        text:"stop"
+        on_press: root.stop()
+
+    Button:
+        text:"replay"
+        on_press: root.replay()
+    Button:
+        text:"next"
+        on_press: root.next()
+    Button:
+        text:"back"
+        on_press: root.back()
+
+    Button:
+        text:"Load"
+        on_release: root.show_load()
+
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+
+        FileChooserListView:
+            id: filechooser
+            dirselect: True
+            # filters: [lambda folder, filename: not filename.endswith('')]
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Load/Select Music"
+                on_press: root.load(filechooser.path, filechooser.selection)
+                on_release: root.cancel()

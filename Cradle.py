@@ -1,10 +1,11 @@
 
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from Motor_Control import Motor_Control
 from __main__ import hallSensor
 
 
-class CradleBoxLayout(BoxLayout):
+class CradleGridLayout(GridLayout):
 
     motor_control = Motor_Control()
 

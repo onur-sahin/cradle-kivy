@@ -1,15 +1,7 @@
 #:kivy 2.1.0
 
 <LullabyWidget>:
-
-    Slider:
-        orientation: "vertical"
-        id: slider_sound
-        min: 0
-        max: 100
-        value: 50
-        on_touch_move: root.on_touch_music_volume_slider(self)
-    
+ 
 
     Button:
         text:"play"
@@ -31,6 +23,17 @@
     Button:
         text:"Load"
         on_release: root.show_load()
+
+    
+    Slider:
+        orientation: "horizontal"
+        size_hint: 3, None
+        id: slider_sound
+        min: 0
+        max: 100
+        value: 50
+        on_touch_move: root.on_touch_music_volume_slider(self)
+   
 
 
 <LoadDialog>:

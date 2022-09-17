@@ -11,16 +11,27 @@ MainPageLayout:
 
 <MainPageLayout@PageLayout>:
     
-    BoxLayout:
-    
-        orientation: 'vertical'
+    GridLayout:
+        cols :1
+
         BoxLayout:
             orientation: 'horizontal'
-            # TempatureBoxLayout:
+            TempatureBoxLayout:
             AirQualityBoxLayout:
             HumidityBoxLayout:
 
-        CradleBoxLayout:
+        BoxLayout:
+            Label:
+                text: "buraya mesajlar yazılacak"
+                height: "50"
+
         LullabyWidget:
+            orientation: 'horizontal'
+            size_hint: 1, 0.4
+
+        
+        CradleBoxLayout:
+            size_hint: 1, 0.4
+        
 
     SettingGridLayout:

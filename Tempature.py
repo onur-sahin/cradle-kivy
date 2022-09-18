@@ -2,7 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import NumericProperty
 from kivy.properties import Clock
-from kivy.uix.label import Label
+from kivy.core.text import Label
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 

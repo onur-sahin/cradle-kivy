@@ -24,9 +24,12 @@ class TempatureBoxLayout(BoxLayout):
 
         self.progbar = CircularProgressBar()
         self.progbar.cap_style = "round"
-        self.progbar.min = 0
-        self.progbar.max = 360
+        self.progbar.min = -9
+        self.progbar.max = 45
+        self.progbar.convert_to_percent_value = False
+        
         self.text_label= Label(text="{}\u00B0C", font_size=40)
+        
 
         self.add_widget(self.progbar)
 
@@ -39,31 +42,10 @@ class TempatureBoxLayout(BoxLayout):
         self.progbar.pos = self.center_x-self.progbar.widget_size/2, self.center_y-self.progbar.widget_size/2
         self.progbar._value = self.tempature
         self.progbar._draw()
+        
+        
 
 
 
 
 
-# class CircularProgressBar_FloatLayout(FloatLayout):
-
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-
-#         self.progbar = CircularProgressBar()
-#         self.progbar.cap_style = "round"
-#         self.progbar.min = 0
-#         self.progbar.max = 360
-#         self.text_label= Label(text="{}\u00B0C", font_size=40)
-    
-
-
-#         self.add_widget(self.progbar)
-
-#         Clock.schedule_interval(self.animate, 1)
-
-
-#     def animate(self, dt):
-#         self.progbar.widget_size = int(self.parent.size[1])
-#         self.progbar.pos = self.parent.center_x-self.progbar.widget_size/2, self.parent.center_y-self.progbar.widget_size/2
-#         self.progbar._value = self.root.tempature
-#         self.progbar._draw()

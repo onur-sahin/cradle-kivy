@@ -8,7 +8,9 @@ Module storing the implementation of a circular progress bar in kivy.
 Authorship: Kacper Florianski
 """
 
+from xmlrpc.client import Boolean
 from kivy.uix.widget import Widget
+from kivy.uix.boxlayout import BoxLayout
 from kivy.app import App
 from kivy.core.text import Label
 from kivy.lang.builder import Builder
@@ -30,6 +32,7 @@ _DEFAULT_MAX_PROGRESS = 100
 _DEFAULT_MIN_PROGRESS = 0
 _DEFAULT_WIDGET_SIZE = 200
 _DEFAULT_TEXT_LABEL = Label(text="{}%", font_size=40)
+_DEFAULT_CONVERT_TO_PERCENT_VALUE = True
 
 # Declare the defaults for the normalisation function, these are used in the textual representation (multiplied by 100)
 _NORMALISED_MAX = 1
@@ -84,6 +87,7 @@ class CircularProgressBar(Widget):
         self._min_progress = _DEFAULT_MIN_PROGRESS
         self._widget_size = _DEFAULT_WIDGET_SIZE
         self._text_label = _DEFAULT_TEXT_LABEL
+        self._convert_to_percent_value = _DEFAULT_CONVERT_TO_PERCENT_VALUE
 
         # Initialise the progress value to the minimum - gets overridden post init anyway
         self._value = _DEFAULT_MIN_PROGRESS
@@ -228,6 +232,18 @@ class CircularProgressBar(Widget):
             self._default_label_text = value.text
 
     @property
+    def convert_to_percent_value(self):
+        return self._convert_to_percent_value
+
+    @convert_to_percent_value.setter
+    def convert_to_percent_value(self, value: Boolean):
+        if type(value) != bool:
+            raise TypeError("convert_percent_value must be bool type, not {}!".format(type(value)))
+        else:
+            self._convert_to_percent_value = value
+
+
+    @property
     def value_normalized(self):
         """
         Alias the for getting the normalised progress.
@@ -255,33 +271,46 @@ class CircularProgressBar(Widget):
 
         Additionally updates the variable tracking the label's texture size
         """
-        self._text_label.text = self._default_label_text.format(str(int(self.get_normalised_progress() * 100)))
+        if self._convert_to_percent_value == True:
+            self._text_label.text = self._default_label_text.format(str(int(self.get_normalised_progress()*100)))
+        else:
+            self._text_label.text = self._default_label_text.format(str(int(self._value)))
+        
         self._text_label.refresh()
         self._label_size = self._text_label.texture.size
 
     def get_normalised_progress(self) -> float:
-        """
-        Function used to normalise the progress using the MIN/MAX normalisation
 
-        :return: Current progress normalised to match the percentage constants
-        """
-        return _NORMALISED_MIN + (self._value - self._min_progress) * (_NORMALISED_MAX - _NORMALISED_MIN) \
-            / (self._max_progress - self._min_progress)
+        if(self.convert_to_percent_value == True):
+            """
+            Function used to normalise the progress using the MIN/MAX normalisation
+
+            :return: Current progress normalised to match the percentage constants
+            """
+            return _NORMALISED_MIN + (self._value - self._min_progress) * (_NORMALISED_MAX - _NORMALISED_MIN) \
+                / (self._max_progress - self._min_progress)
+
+        else:
+            return 135 - 270 * (self._max_progress - self._value)/(self._max_progress-self._min_progress)
 
     def set_normalised_progress(self, norm_progress: int):
-        """
-        Function used to set the progress value from a normalised value, using MIN/MAX normalisation
 
-        :param norm_progress: Normalised value to update the progress with
-        """
-        if type(norm_progress) != float and type(norm_progress) != int:
-            raise TypeError("Normalised progress must be a float or an integer, not {}!".format(type(norm_progress)))
-        elif _NORMALISED_MIN > norm_progress or norm_progress > _NORMALISED_MAX:
-            raise ValueError("Normalised progress must be between the corresponding min ({}) and max ({}), {} is not!"
-                             .format(_NORMALISED_MIN, _NORMALISED_MAX, norm_progress))
+        if self._convert_to_percent_value == True:
+            """
+            Function used to set the progress value from a normalised value, using MIN/MAX normalisation
+
+            :param norm_progress: Normalised value to update the progress with
+            """
+            if type(norm_progress) != float and type(norm_progress) != int:
+                raise TypeError("Normalised progress must be a float or an integer, not {}!".format(type(norm_progress)))
+            elif _NORMALISED_MIN > norm_progress or norm_progress > _NORMALISED_MAX:
+                raise ValueError("Normalised progress must be between the corresponding min ({}) and max ({}), {} is not!"
+                                 .format(_NORMALISED_MIN, _NORMALISED_MAX, norm_progress))
+            else:
+                self.value = ceil(self._min_progress + (norm_progress - _NORMALISED_MIN) *
+                                  (self._max_progress - self._min_progress) / (_NORMALISED_MAX - _NORMALISED_MIN))
         else:
-            self.value = ceil(self._min_progress + (norm_progress - _NORMALISED_MIN) *
-                              (self._max_progress - self._min_progress) / (_NORMALISED_MAX - _NORMALISED_MIN))
+            self.value = ceil(norm_progress)
 
     def _draw(self):
         """
@@ -309,13 +338,25 @@ class CircularProgressBar(Widget):
 
             # Draw the progress line
             Color(*self.progress_colour)
-            Line(circle=(self.pos[0] + self._widget_size / 2,
-                         self.pos[1] + self._widget_size / 2,
-                         self._widget_size / 2 - self._thickness,
-                         -135,
-                         (self.get_normalised_progress()) * 270-135),
 
-                 width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
+            if self._convert_to_percent_value == True:
+                Line(circle=(self.pos[0] + self._widget_size / 2,
+                            self.pos[1] + self._widget_size / 2,
+                            self._widget_size / 2 - self._thickness,
+                            -135,
+                            (self.get_normalised_progress()) * 270-135),
+
+                    width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
+
+            else:
+                Line(circle=(self.pos[0] + self._widget_size / 2,
+                            self.pos[1] + self._widget_size / 2,
+                            self._widget_size / 2 - self._thickness,
+                            -135,
+                            (self.get_normalised_progress())),
+
+                     width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
+
 
             # Center and draw the progress text
             Color(1, 1, 1, 1)
@@ -372,7 +413,7 @@ FloatLayout:
         label: _another_label''')
 
         # Animate the progress bar
-        Clock.schedule_interval(self.animate, 0.05)
+        Clock.schedule_interval(self.animate, 0.5)
         return container
 
 

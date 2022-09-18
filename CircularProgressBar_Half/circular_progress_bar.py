@@ -330,7 +330,7 @@ class CircularProgressBar(Widget):
         with self.canvas:
             self.canvas.clear()
             
-            if(self.parent.cold_warning == self.parent.hot_warning):
+            if(self.parent.warning == False):
                 Color(0.2, 0.4, 0.5, 1)
                 
             else:

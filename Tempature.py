@@ -16,15 +16,13 @@ class TempatureBoxLayout(FloatLayout):
 
     tempature = NumericProperty()
     
-    cold_warning = BooleanProperty(False)
-    hot_warning  = BooleanProperty(False)
+    warning = BooleanProperty(False)
+
     
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
         Clock.schedule_interval(self.update, 1)
-        
-        self.flag = True
 
         self.lm35_driver = LM35()
         
@@ -40,12 +38,18 @@ class TempatureBoxLayout(FloatLayout):
         self.progbar.label= Label(text="{}\u00B0C", font_size=40)
         
         self.btn = Button(pos=self.pos,
-                          size=self.size,
-                          background_color=(0.2, 0.4, 0.5, 1)
-                         )
+                          size=self.size
+                          )
+                         
+        self.btn.bind(on_press=self.yeni)
+                         
         
         self.add_widget(self.btn)
         self.add_widget(self.progbar)
+        
+    def yeni(self, self_button):
+        print("#################")
+      
 
 
 
@@ -57,13 +61,13 @@ class TempatureBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.tempature += 1 #self.lm35_driver.getTempature()
+        self.tempature = self.lm35_driver.getTempature()
         
         self.tempature = int(self.tempature)
         
         self.setColor()
         
-        self.warning()
+        self.check_warning()
 
         self.progbar.widget_size = int(self.parent.size[1])
         self.progbar.pos = self.center_x-self.progbar.widget_size/2, self.center_y-self.progbar.widget_size/2
@@ -76,24 +80,20 @@ class TempatureBoxLayout(FloatLayout):
         
         
         
-    def warning(self):
+    def check_warning(self):
         
-        self.flag = not self.flag
         
         if self.tempature < 20:
-            self.cold_warning = True
+            self.warning = True
             
-            self.btn.background_color = (0.2, 0.4, 0.5, 1 if self.flag==True else 0.5 )
-            
+                    
         elif self.tempature > 26:
-            self.hot_warning = True
-            self.btn.background_color = (0.2, 0.4, 0.5, 1 if self.flag==True else 0.5 )
-            
+            self.warning = True
+           
             
         else:
-            self.btn.background_color = (0.2, 0.4, 0.5, 1)
-            self.cold_warning = False
-            self.hot_warning = False
+            self.warning = False
+            
 
     def setColor(self):
         

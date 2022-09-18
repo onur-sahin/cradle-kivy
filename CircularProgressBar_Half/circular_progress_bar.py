@@ -26,8 +26,9 @@ _ACCEPTED_BAR_CAPS = {"round", "none", "square"}
 _DEFAULT_THICKNESS = 10
 _DEFAULT_CAP_STYLE = 'round'
 _DEFAULT_PRECISION = 10
-_DEFAULT_PROGRESS_COLOUR = (1, 0, 0, 1)
-_DEFAULT_BACKGROUND_COLOUR = (0.26, 0.26, 0.26, 1)
+_DEFAULT_PROGRESS_COLOR = (1, 0, 0, 1)
+_DEFAULT_BACKGROUND_COLOR = (0.26, 0.26, 0.26, 1)
+#_DEFAULT_BACKGROUND_COLOR = (0.2, 0.4, 0.5, 1)
 _DEFAULT_MAX_PROGRESS = 100
 _DEFAULT_MIN_PROGRESS = 0
 _DEFAULT_WIDGET_SIZE = 200
@@ -50,8 +51,8 @@ class CircularProgressBar(Widget):
         1. thickness - thickness of the progress bar line (positive integer)
         2. cap_style - cap / edge of the bar, check the cap keyword argument in kivy.graphics.Line
         3. cap_precision - bar car sharpness, check the cap_precision keyword argument in kivy.graphics.Line
-        4. progress_colour - Colour value of the progress bar, check values accepted by kivy.graphics.Color
-        5. background_colour - Colour value of the background bar, check values accepted by kivy.graphics.Color
+        4. progress_color - Color value of the progress bar, check values accepted by kivy.graphics.Color
+        5. background_color - Colour value of the background bar, check values accepted by kivy.graphics.Color
         6. max - maximum progress (value corresponding to 100%)
         7. min - minimum progress (value corresponding to 0%) - note that this sets the starting value to this value
         8. value - progress value, can you use it initialise the bar to some other progress different from the minimum
@@ -81,13 +82,15 @@ class CircularProgressBar(Widget):
         self._thickness = _DEFAULT_THICKNESS
         self._cap_style = _DEFAULT_CAP_STYLE
         self._cap_precision = _DEFAULT_PRECISION
-        self._progress_colour = _DEFAULT_PROGRESS_COLOUR
-        self._background_colour = _DEFAULT_BACKGROUND_COLOUR
+        self._progress_colour = _DEFAULT_PROGRESS_COLOR
+        self._background_color = _DEFAULT_BACKGROUND_COLOR
         self._max_progress = _DEFAULT_MAX_PROGRESS
         self._min_progress = _DEFAULT_MIN_PROGRESS
         self._widget_size = _DEFAULT_WIDGET_SIZE
         self._text_label = _DEFAULT_TEXT_LABEL
         self._convert_to_percent_value = _DEFAULT_CONVERT_TO_PERCENT_VALUE
+        
+        self.warning_flag = True
 
         # Initialise the progress value to the minimum - gets overridden post init anyway
         self._value = _DEFAULT_MIN_PROGRESS
@@ -141,26 +144,26 @@ class CircularProgressBar(Widget):
             self._cap_precision = value
 
     @property
-    def progress_colour(self):
-        return self._progress_colour
+    def progress_color(self):
+        return self._progress_color
 
-    @progress_colour.setter
-    def progress_colour(self, value: Iterable):
+    @progress_color.setter
+    def progress_color(self, value: Iterable):
         if not isinstance(value, Iterable):
-            raise TypeError("Bar progress colour must be iterable (e.g. list, tuple), not {}!".format(type(value)))
+            raise TypeError("Bar progress color must be iterable (e.g. list, tuple), not {}!".format(type(value)))
         else:
-            self._progress_colour = value
+            self._progress_color = value
 
     @property
-    def background_colour(self):
-        return self._background_colour
+    def background_color(self):
+        return self._background_color
 
-    @background_colour.setter
-    def background_colour(self, value: Iterable):
+    @background_color.setter
+    def background_color(self, value: Iterable):
         if not isinstance(value, Iterable):
-            raise TypeError("Bar background colour must be iterable (e.g. list, tuple), not {}!".format(type(value)))
+            raise TypeError("Bar background color must be iterable (e.g. list, tuple), not {}!".format(type(value)))
         else:
-            self._background_colour = value
+            self._background_color = value
 
     @property
     def max(self):
@@ -326,10 +329,20 @@ class CircularProgressBar(Widget):
 
         with self.canvas:
             self.canvas.clear()
+            
+            if(self.parent.cold_warning == self.parent.hot_warning):
+                Color(0.2, 0.4, 0.5, 1)
+                
+            else:
+                self.warning_flag = not self.warning_flag
+                Color(0.2, 0.4, 0.5, 1 if self.warning_flag else 0.5)
+            
+            Rectangle(pos=self.parent.pos, size=self.parent.size)
+           
             self._refresh_text()
 
             # Draw the background progress line
-            Color(*self.background_colour)
+            Color(*self.background_color)
             Line(circle=(self.pos[0] + self._widget_size / 2,
                          self.pos[1] + self._widget_size / 2,
                          self._widget_size / 2 - self._thickness, -135, 135),
@@ -337,14 +350,23 @@ class CircularProgressBar(Widget):
                  width=self._thickness)
 
             # Draw the progress line
-            Color(*self.progress_colour)
+            Color(*self.progress_color)
+            
+            angle_end = self.get_normalised_progress()
+            
+            if angle_end > 135:
+                angle_end = 135
+                
+            if angle_end < -135:
+                angle_end = -135
+            
 
             if self._convert_to_percent_value == True:
                 Line(circle=(self.pos[0] + self._widget_size / 2,
                             self.pos[1] + self._widget_size / 2,
                             self._widget_size / 2 - self._thickness,
                             -135,
-                            (self.get_normalised_progress()) * 270-135),
+                            (angle_end) * 270-135),
 
                     width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
 
@@ -353,7 +375,7 @@ class CircularProgressBar(Widget):
                             self.pos[1] + self._widget_size / 2,
                             self._widget_size / 2 - self._thickness,
                             -135,
-                            (self.get_normalised_progress())),
+                            (angle_end)),
 
                      width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
 
@@ -393,8 +415,8 @@ FloatLayout:
         pos: 50, 100
         thickness: 15
         cap_style: "RouND"
-        progress_colour: "010"
-        background_colour: "001"
+        progress_color: "010"
+        background_color: "001"
         cap_precision: 3
         max: 150
         min: 100
@@ -406,7 +428,7 @@ FloatLayout:
         pos: 650, 100
         cap_style: "SqUArE"
         thickness: 5
-        progress_colour: 0.8, 0.8, 0.5, 1
+        progress_color: 0.8, 0.8, 0.5, 1
         cap_precision:100
         max: 10
         widget_size: 100

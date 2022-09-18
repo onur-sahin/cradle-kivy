@@ -9,7 +9,16 @@
 
 MainPageLayout:
 
+
 <MainPageLayout@PageLayout>:
+
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.4, 0.5, 1
+        Rectangle:
+            # self here refers to the widget i.e FloatLayout
+            pos: self.pos
+            size: self.size
     
     GridLayout:
         cols :1

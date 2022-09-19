@@ -55,9 +55,7 @@ class AirQualityBoxLayout(FloatLayout):
         
         self.progbar.label = Label(text="{}\nPPM", font_size=40)
         
-        self.btn = Button(pos=self.pos,
-                          size=self.size
-                          )
+        self.btn = Button()
 
         self.btn.bind(on_press=self.yeni)
 

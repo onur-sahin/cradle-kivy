@@ -25,9 +25,6 @@ class TempatureBoxLayout(FloatLayout):
         Clock.schedule_interval(self.update, 1)
 
         self.lm35_driver = LM35()
-        
-        self.tempature = 5
-        
 
         self.progbar = CircularProgressBar()
         self.progbar.cap_style = "round"
@@ -37,9 +34,7 @@ class TempatureBoxLayout(FloatLayout):
         
         self.progbar.label= Label(text="{}\u00B0C", font_size=40)
         
-        self.btn = Button(pos=self.pos,
-                          size=self.size
-                          )
+        self.btn = Button()
                          
         self.btn.bind(on_press=self.yeni)
                          
@@ -54,9 +49,6 @@ class TempatureBoxLayout(FloatLayout):
 
 
     def update(self, dt):
-        
-        
-        
         
         self.btn.size = self.size
         self.btn.pos = self.pos

@@ -3,7 +3,7 @@
 # sudo apt-get install libgpiod2
 
 
-import time
+from time import sleep
 import board
 import adafruit_dht
 import psutil
@@ -22,8 +22,8 @@ class DHT11_driver():
                 proc.kill()
 
         self.sensor      = adafruit_dht.DHT11(board.D6)
-        self.temp        = "waiting"
-        self.humidity    = "waiting"
+        self.temp        = 0
+        self.humidity    = 0
 
     def getTempAndHumidity(self):
 
@@ -34,32 +34,31 @@ class DHT11_driver():
 
     def updateDHT11(self):
 
-        count = 0
 
         while True:
 
-            count += 1
 
             try:
-                self.temp = self.sensor.temperature
-                self.humidity = self.sensor.humidity
+                sleep(0.0001)
+                self.temp = int( self.sensor.temperature )
+                sleep(0.0001)
+                self.humidity = int( self.sensor.humidity )
+                sleep(0.0001)
                 
                 break
 
             except RuntimeError as error:
+                sleep(0.0001)
                 print(error.args[0])
-                time.sleep(2.0)
+                sleep(2.0)
                 continue
             
-            except Exception as error:
+            except BaseException as error:
+                sleep(0.0001)
                 self.sensor.exit()
                 raise error
-
-            else:
-                if count == 10:
-                    self.temp = "error"
             
-            time.sleep(2.0)
+        
 
 
 if __name__ == "__main__":
@@ -73,4 +72,4 @@ if __name__ == "__main__":
         print("Temperature: {}*C   Humidity: {}% ".format(dht11.temp, dht11.humidity))
 
         
-        time.sleep(2.0)
+        sleep(2.0)

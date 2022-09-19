@@ -1,5 +1,8 @@
+from kivy.core.text import Label
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.button import Button
 from kivy.properties import Clock
 
 from DHT11_driver import DHT11_driver
@@ -13,7 +16,7 @@ from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
 class HumidityBoxLayout(FloatLayout):
 
-    humidity = NumericProperty()
+    humidity = NumericProperty(0.0)
     temp     = NumericProperty()
 
     warning  = BooleanProperty(False)
@@ -35,9 +38,7 @@ class HumidityBoxLayout(FloatLayout):
         
         self.progbar.label = Label(text="{}%", font_size=40)
         
-        self.btn = Button(pos=self.pos,
-                          size=self.size
-                          )
+        self.btn = Button()
 
         self.btn.bind(on_press=self.yeni)
 
@@ -49,9 +50,65 @@ class HumidityBoxLayout(FloatLayout):
 
 
     def update(self, dt):
+
         self.temp, self.humidity = self.dht11.getTempAndHumidity()
 
+        self.btn.size = self.size
+        self.btn.pos = self.pos
+        
+        self.setColor()
+        
+        self.check_warning()
 
+        self.progbar.widget_size = int(self.parent.size[1])
+        self.progbar.pos = self.center_x-self.progbar.widget_size/2, self.center_y-self.progbar.widget_size/2
+        
+
+        self.progbar._value = self.humidity
+        
+        self.progbar._draw()
+
+
+
+    def check_warning(self):
+        
+        
+        if self.humidity < 40:
+            self.warning = True
+            
+                    
+        elif self.humidity > 60:
+            self.warning = True
+           
+            
+        else:
+            self.warning = False
+            
+
+    def setColor(self):
+        
+        h = self.humidity
+        
+        if (h < 30 ):               #TOO DRY   - MAROON
+            
+            self.progbar.progress_color = (0.5, 0, 0, 1)
+            
+        elif (h >= 30 and h < 40):  #DRY       - ORANGE
+            self.progbar.progress_color = (1, 0.645, 0, 1)
+        
+        elif (h >= 40 and h <= 60): #NORMAL    - GREEN
+            self.progbar.progress_color = (0, 1, 0, 1)
+        
+        elif (h > 60 and h <= 70):  #MOIST     - LIGHT BLUE
+            self.progbar.progress_color = (0.5, 0.5, 1, 1)
+            
+        elif (h > 70 ) :             #TOO MOIST- DARK BLUE
+            self.progbar.progress_color = (0, 0, 1, 1)
+            
+     
+
+
+        
 
 
 

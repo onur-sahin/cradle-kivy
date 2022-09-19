@@ -20,17 +20,17 @@ class CradleGridLayout(GridLayout):
         
         btn_stop.disabled = True
         
-
-        for i in range(0, 100001):
-
-            if hallSensor.hallSensorState() == False:
+        a = True
+        for i in range(0, 10000001):
+            a= hallSensor.hallSensorState()
+            if a == False:
+                print(a)
                 self.motor_control.motor_stop()
                 break
 
-            elif(i == 100000):
+            elif(i == 10000000):
                 self.motor_control.motor_stop()
             
-            # sleep(0.0001)
         
 
         btn_cradle.disabled = False

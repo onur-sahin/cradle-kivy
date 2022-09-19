@@ -8,11 +8,16 @@ class HallSensor:
     hallpin = 21
 
     def __init__(self):
+        
+        try:
     
-        gpio.setmode(gpio.BCM)
-        gpio.setwarnings(False)
-        gpio.setup( HallSensor.hallpin, gpio.IN)
+        
+            gpio.setmode(gpio.BCM)
+            gpio.setwarnings(False)
+            gpio.setup( HallSensor.hallpin, gpio.IN)
 
+        except:
+            pass
 
     def hallSensorState(self):
         return gpio.input(HallSensor.hallpin)

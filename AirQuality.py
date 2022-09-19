@@ -18,7 +18,7 @@ from kivy.uix.button import Button
 from kivy.core.text import Label
 from kivy.properties import Clock
 from kivy.properties import NumericProperty
-from kivy.properties import StringProperty, BooleanProperty, NumericProperty
+from kivy.properties import StringProperty, BooleanProperty, NumericProperty, ColorProperty
 
 from time import sleep
     
@@ -36,6 +36,9 @@ class AirQualityBoxLayout(FloatLayout):
     airQuality = NumericProperty()
 
     warning = BooleanProperty(False)
+    
+    warning_color = ColorProperty([1, 0, 0, 1])
+    warning_label = StringProperty("Normal")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -44,7 +47,7 @@ class AirQualityBoxLayout(FloatLayout):
         
         rawValue = -1
 
-        Clock.schedule_interval(self.update, 1)
+        Clock.schedule_interval(self.update, 2)
         
 
         self.progbar = CircularProgressBar()
@@ -61,6 +64,9 @@ class AirQualityBoxLayout(FloatLayout):
 
         self.add_widget(self.btn)
         self.add_widget(self.progbar)
+        
+        self.warning_label = "ea"
+        self.warning_color = (1,0,0,0)
 
     def yeni(self, self_button):
         print("####################")
@@ -72,7 +78,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality = self.getAirQuality()
+        self.airQuality +=1# self.getAirQuality()
         
         self.setColor()
         
@@ -105,23 +111,28 @@ class AirQualityBoxLayout(FloatLayout):
         
         if (p  >=0 and p <= 50 ):                           #GOOD         -GREEN
             
-            self.progbar.progress_color = (0, 1, 0, 1)
+            self.progbar.progress_color, self.warning_color = (0, 1, 0, 1), (0.5, 0, 0, 1)
+            self.warning_label = "GOOD"
             
         elif (p >= 51 and p <= 100):                        #MODERATE     -YELLOW
-            self.progbar.progress_color = (1, 1, 0, 1)
+            self.progbar.progress_color, self.warning_color = (1, 1, 0, 1), (0.5, 0, 0, 1)
+            self.warning_label = "MODERATE"
          
         elif (p >= 101 and p <= 150):                       #UNHEALTY FOR SENSITIVE GROUPS- ORANGE
-            self.progbar.progress_color = (1, 0.645, 0, 1)
-        
+            self.progbar.progress_color, self.warning_color = (1, 0.645, 0, 1), (0.5, 0, 0, 1)
+            self.warning_label = "UNHEALTY FOR SENSITIVE"
+            
         elif (p > 151 and p <= 200):                        #UNHEALTY     - RED
-            self.progbar.progress_color = (1, 0, 0, 1)
+            self.progbar.progress_color, self.warning_color = (1, 0, 0, 1), (0.5, 0, 0, 1)
+            self.warning_label = "UNHEALTY"
             
         elif (p >= 201 and p <= 300 ) :                     #VERY UNHEALTY -PURPLE
-            self.progbar.progress_color = (0.5, 0, 0.5, 1)
+            self.progbar.progress_color, self.warning_color = (0.5, 0, 0.5, 1), (0.5, 0, 0, 1)
+            self.warning_label = "VERY UNHEALTY"
             
         elif (p >= 301):                                    #HAZARDOUS     -MAROON
-            self.progbar.progress_color = (0.5, 0, 0, 1)
-
+            self.progbar.progress_color, self.warning_color = (0.5, 0, 0, 1), (0.5, 0, 0, 1)
+            self.warning_label = "HAZARDOUS"
             
 
 

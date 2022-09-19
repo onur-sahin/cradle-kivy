@@ -5,12 +5,15 @@ import RPi.GPIO as GPIO
 from time import sleep
 
 
+
+
 class Motor_Control:
 
     in1 = 24
     in2 = 23
     en = 25
     temp1 = 1
+    
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(in1, GPIO.OUT)
@@ -28,23 +31,27 @@ class Motor_Control:
 
        
     def motor_start(self, speed = default_speed):
-
+        
+            
         self.p.start(25)
 
         self.set_speed(100)
         sleep(2)
 
         self.set_speed(speed)
-
-        
         
         GPIO.output(self.in1, GPIO.HIGH)
         GPIO.output(self.in2, GPIO.LOW)
         
 
     def motor_stop(self):
+        
 
         self.p.stop()
 
         GPIO.output(self.in1, GPIO.LOW)
         GPIO.output(self.in2, GPIO.LOW)
+            
+            
+            
+            

@@ -53,7 +53,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.progbar.max = 0
         self.progbar.convert_to_percent_value = True
         
-        self.progbar.label = Label(text="{}\nPPM", font_size=40)
+        self.progbar.label = Label(text="{}%", font_size=40)
         
         self.btn = Button()
 
@@ -66,7 +66,8 @@ class AirQualityBoxLayout(FloatLayout):
         print("####################")
 
     def update(self, dt):
-
+        
+        self.progbar.label = Label(text="{}%", font_size = self.progbar.widget_size*0.3 )
         
         self.btn.size = self.size
         self.btn.pos = self.pos

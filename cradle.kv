@@ -18,12 +18,14 @@
         Button:
             id: btn_cradle
             text: 'CRADLE'
-            on_press: root.on_press_btn_cradle(slider_speed.value)
+            on_press: root.on_press_btn_cradle(slider_speed.value, btn_cradle, btn_stop)
+            disabled: False
 
         Button:
             id: btn_stop
             text: 'STOP'
-            on_press: root.on_press_btn_stop()
+            on_press: root.on_press_btn_stop(btn_cradle, btn_stop)
+            disabled: True
 
         Slider:
             id: slider_speed
@@ -34,13 +36,15 @@
 
     BoxLayout:
         orientation: 'horizontal'
-
-        Button:
-            text: "AUTO START CRADLE\nON/OFF"
+        
+        ToggleButton:
+            text: "AUTO START CRADLE\n             " + "ON" if self.state=="down" else  "AUTO START CRADLE\n             " + "OFF"
 
         
-        Button:
-            text: "AUTO STOP CRADLE\nON/OFF"
+        ToggleButton:
+            text: "AUTO STOP CRADLE\n              " +  "ON" if self.state=="down" else "AUTO STOP CRADLE\n              " + "OFF"
+
+
 
     BoxLayout:
         size_hint: 1, 0.5

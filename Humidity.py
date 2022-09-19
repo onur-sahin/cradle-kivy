@@ -50,6 +50,8 @@ class HumidityBoxLayout(FloatLayout):
 
 
     def update(self, dt):
+        
+        self.progbar.label = Label(text="{}%", font_size = self.progbar.widget_size*0.3 )
 
         self.temp, self.humidity = self.dht11.getTempAndHumidity()
 

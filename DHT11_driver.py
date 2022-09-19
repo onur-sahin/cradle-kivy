@@ -46,17 +46,20 @@ class DHT11_driver():
                 sleep(0.0001)
                 
                 break
+                
+            except:
+                pass
 
-            except RuntimeError as error:
-                sleep(0.0001)
-                print(error.args[0])
-                sleep(2.0)
-                continue
+            # except RuntimeError as error:
+                # sleep(0.0001)
+                # print(error.args[0])
+                # sleep(2.0)
+                # continue
             
-            except BaseException as error:
-                sleep(0.0001)
-                self.sensor.exit()
-                raise error
+            # except BaseException as error:
+                # sleep(0.0001)
+                # self.sensor.exit()
+                # raise error
             
         
 

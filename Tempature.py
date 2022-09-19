@@ -6,6 +6,8 @@ from kivy.properties import Clock
 from kivy.core.text import Label
 from kivy.graphics import Line, Rectangle, Color
 
+from kivy.metrics import dp
+
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
 from LM35 import LM35
@@ -17,6 +19,7 @@ class TempatureBoxLayout(FloatLayout):
     tempature = NumericProperty()
     
     warning = BooleanProperty(False)
+    fnt_size =  NumericProperty(10)
 
     
     def __init__(self, **kwargs):
@@ -32,7 +35,7 @@ class TempatureBoxLayout(FloatLayout):
         self.progbar.max = 44
         self.progbar.convert_to_percent_value = False
         
-        self.progbar.label= Label(text="{}\u00B0C", font_size=40)
+        self.progbar.label = Label(text="{}\u00B0C", font_size = 30 )
         
         self.btn = Button()
                          
@@ -49,6 +52,8 @@ class TempatureBoxLayout(FloatLayout):
 
 
     def update(self, dt):
+            
+        self.progbar.label = Label(text="{}\u00B0C", font_size = self.progbar.widget_size*0.3 )
         
         self.btn.size = self.size
         self.btn.pos = self.pos

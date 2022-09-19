@@ -16,6 +16,7 @@ from kivy.core.text import Label
 from kivy.lang.builder import Builder
 from kivy.graphics import Line, Rectangle, Color
 from kivy.properties import Clock
+from kivy.properties import NumericProperty
 from collections.abc import Iterable
 from math import ceil
 
@@ -91,6 +92,7 @@ class CircularProgressBar(Widget):
         self._convert_to_percent_value = _DEFAULT_CONVERT_TO_PERCENT_VALUE
         
         self.warning_flag = True
+        
 
         # Initialise the progress value to the minimum - gets overridden post init anyway
         self._value = _DEFAULT_MIN_PROGRESS
@@ -275,7 +277,14 @@ class CircularProgressBar(Widget):
         Additionally updates the variable tracking the label's texture size
         """
         if self._convert_to_percent_value == True:
-            self._text_label.text = self._default_label_text.format(str(int(self.get_normalised_progress()*100)))
+            percent_value = self.get_normalised_progress()*100
+            
+            if percent_value < 0:
+                percent_value = 0
+            if percent_value > 100:
+                percent_value = 100
+            
+            self._text_label.text = self._default_label_text.format(str(int(percent_value)))
         else:
             self._text_label.text = self._default_label_text.format(str(int(self._value)))
         
@@ -352,32 +361,46 @@ class CircularProgressBar(Widget):
             # Draw the progress line
             Color(*self.progress_color)
             
-            angle_end = self.get_normalised_progress()
             
-            if angle_end > 135:
-                angle_end = 135
-                
-            if angle_end < -135:
-                angle_end = -135
+            
+            
             
 
             if self._convert_to_percent_value == True:
+                
+                angle_end = self.get_normalised_progress()*270-135
+                
+                if angle_end > 135:
+                    angle_end = 135
+                
+                if angle_end < -135:
+                    angle_end = -135
+                
                 Line(circle=(self.pos[0] + self._widget_size / 2,
                             self.pos[1] + self._widget_size / 2,
                             self._widget_size / 2 - self._thickness,
                             -135,
-                            (angle_end) * 270-135),
+                            angle_end),
 
-                    width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
+                            width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
 
             else:
+                
+                angle_end = self.get_normalised_progress()
+                
+                if angle_end > 135:
+                    angle_end = 135
+                
+                if angle_end < -135:
+                    angle_end = -135
+                    
                 Line(circle=(self.pos[0] + self._widget_size / 2,
                             self.pos[1] + self._widget_size / 2,
                             self._widget_size / 2 - self._thickness,
                             -135,
-                            (angle_end)),
+                            angle_end),
 
-                     width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
+                            width=self._thickness, cap=self._cap_style, cap_precision=self._cap_precision)
 
 
             # Center and draw the progress text

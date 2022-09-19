@@ -113,10 +113,13 @@ class TempatureBoxLayout(FloatLayout):
             self.progbar.progress_color = (1, 1, 0, 1)
             
         elif (t >26 and t <=28 ) :  #HOT      - ORANGE
-            self.progbar.progress_color = (1, 0.647, 0, 1)
+            self.progbar.progress_color = (1, 0.645, 0, 1)
             
-        elif (t > 28 ):             #TOO HOT  - RED
+        elif (t > 28 and t <= 32):  #TOO HOT  - RED
             self.progbar.progress_color = (1, 0, 0, 1)
+        
+        elif (t > 32):              #VERY HOT  - MAROON
+            self.progbar.progress_color = (0.5, 0, 0, 1)
 
 
 

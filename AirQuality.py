@@ -5,6 +5,7 @@
 
 
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 from kivy.core.text import Label
 from kivy.properties import Clock
@@ -20,7 +21,7 @@ from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
 
 
-class AirQualityBoxLayout(BoxLayout):
+class AirQualityBoxLayout(FloatLayout):
 
     
     # airQuality        = StringProperty("waiting for calculation")
@@ -36,14 +37,14 @@ class AirQualityBoxLayout(BoxLayout):
         
         rawValue = -1
 
-        Clock.schedule_interval(self.update, 0.1)
+        Clock.schedule_interval(self.update, 1)
         
 
         self.progbar = CircularProgressBar()
         self.progbar.cap_style = "round"
-        self.progbar.min = 0
-        self.progbar.max = 301
-        self.progbar.convert_to_percent_value = False
+        self.progbar.min = 301
+        self.progbar.max = 0
+        self.progbar.convert_to_percent_value = True
         
         self.progbar.label = Label(text="{}\nPPM", font_size=40)
         
@@ -65,7 +66,7 @@ class AirQualityBoxLayout(BoxLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality = self.getAirQuality()
+        self.airQuality += 1# self.getAirQuality()
         
         self.setColor()
         

@@ -173,9 +173,9 @@ class CircularProgressBar(Widget):
     def max(self, value: int):
         if type(value) != int:
             raise TypeError("Maximum progress only accepts an integer value, not {}!".format(type(value)))
-        elif value <= self._min_progress:
-            raise ValueError("Maximum progress - {} - must be greater than minimum progress ({})!"
-                             .format(value, self._min_progress))
+#        elif value <= self._min_progress:
+#            raise ValueError("Maximum progress - {} - must be greater than minimum progress ({})!"
+#                             .format(value, self._min_progress))
         else:
             self._max_progress = value
 
@@ -187,9 +187,9 @@ class CircularProgressBar(Widget):
     def min(self, value: int):
         if type(value) != int:
             raise TypeError("Minimum progress only accepts an integer value, not {}!".format(type(value)))
-        elif value > self._max_progress:
-            raise ValueError("Minimum progress - {} - must be smaller than maximum progress ({})!"
-                             .format(value, self._max_progress))
+#        elif value > self._max_progress:
+ #           raise ValueError("Minimum progress - {} - must be smaller than maximum progress ({})!"
+  #                           .format(value, self._max_progress))
         else:
             self._min_progress = value
             self._value = value

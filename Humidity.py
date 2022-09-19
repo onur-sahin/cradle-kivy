@@ -1,11 +1,12 @@
 from kivy.uix.boxlayout import BoxLayout
+from kivy-uit.floatlayout import FloatLayout
 from kivy.properties import Clock
 
 from DHT11_driver import DHT11_driver
 
 from kivy.properties import NumericProperty
 
-class HumidityBoxLayout(BoxLayout):
+class HumidityBoxLayout(FloatLayout):
 
     humidity = NumericProperty()
     temp = NumericProperty()

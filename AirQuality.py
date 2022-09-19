@@ -3,6 +3,14 @@
 
 #sudo pip3 install adafruit-circuitpython-mcp3xxx
 
+if __name__!="__main__":
+    from __main__ import adc
+
+else:
+    from ADC import ADC
+    from time import sleep
+
+
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -13,8 +21,7 @@ from kivy.properties import NumericProperty
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 
 from time import sleep
-
-from __main__ import adc
+    
 from myTools import range_
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
@@ -66,7 +73,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality += 1# self.getAirQuality()
+        self.airQuality = self.getAirQuality()
         
         self.setColor()
         
@@ -119,7 +126,7 @@ class AirQualityBoxLayout(FloatLayout):
             
 
 
-
+    
     def getAirQuality(self):
 
         self.rawValue = self.adc.getSensorValue( channel=0 )
@@ -142,3 +149,30 @@ class AirQualityBoxLayout(FloatLayout):
 # Red               Unhealthy                            151 to 200	Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.
 # Purple            Very Unhealthy                       201 to 300	Health alert: The risk of health effects is increased for everyone.
 # Maroon            Hazardous                            301 and higher	Health warning of emergency conditions: everyone is more likely to be affected.
+
+
+
+if __name__ == "__main__":
+    
+    adc = ADC()
+    
+    def calculatePPm(rawValue):
+
+        return range_(rawValue, 0, 65472, 10, 1000)
+    
+    
+    def getAirQuality(adc):
+
+        rawValue = adc.getSensorValue( channel=0 )
+
+        return calculatePPm( rawValue ) 
+        
+    count = 0
+    
+    while True:
+        count += 1
+        print(  f"{count}: AirQuality: {getAirQuality(adc)} PPM"  )
+        
+        sleep(1)
+        
+    

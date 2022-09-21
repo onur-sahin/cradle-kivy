@@ -22,8 +22,8 @@ from HallSensor import HallSensor
 from kivy.lang.builder import Builder
 
 from kivy.config import Config
-Config.set('graphics', 'width', '600')
-Config.set('graphics', 'height', '400')
+Config.set('graphics', 'width', '1000')
+Config.set('graphics', 'height', '700')
 Config.write()
 
 #Builder.load_file("cradle.kv") This file is main .kv file, you don't need load again

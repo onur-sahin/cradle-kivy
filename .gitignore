@@ -1,6 +1,9 @@
 Records
 
+#doesn't work it should be deleted to push into other github repo
 AppHeroku/.git/
+
+
 AppHeroku/__pycache__/
 AppHeroku/.vscode/
 

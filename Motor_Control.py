@@ -14,6 +14,7 @@ class Motor_Control:
     en = 25
     temp1 = 1
     
+    
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(in1, GPIO.OUT)
@@ -23,34 +24,49 @@ class Motor_Control:
     GPIO.output(in2, GPIO.LOW)
 
     default_speed = 25
+    current_speed = -1
+    motor_status = False
+    
     p = GPIO.PWM(en, 1000)
 
 
     def set_speed(self, x = default_speed):
-        self.p.ChangeDutyCycle(x)
+        
+        if(self.current_speed != x):
+            self.p.ChangeDutyCycle(x)
+            current_speed = x
 
        
-    def motor_start(self, speed = default_speed):
+    def motor_start(self, speed=default_speed):
         
+        if self.motor_status == False:
+        
+            self.motor_status = True
+                
+            self.p.start(25)
+
+            self.set_speed(100)
+            sleep(2)
+
+            self.set_speed(speed)
             
-        self.p.start(25)
-
-        self.set_speed(100)
-        sleep(2)
-
-        self.set_speed(speed)
+            GPIO.output(self.in1, GPIO.HIGH)
+            GPIO.output(self.in2, GPIO.LOW)
         
-        GPIO.output(self.in1, GPIO.HIGH)
-        GPIO.output(self.in2, GPIO.LOW)
+        
         
 
     def motor_stop(self):
         
+        if self.motor_status == True:
+            
+            self.motor_status = False
+            
+            self.p.stop()
 
-        self.p.stop()
-
-        GPIO.output(self.in1, GPIO.LOW)
-        GPIO.output(self.in2, GPIO.LOW)
+            GPIO.output(self.in1, GPIO.LOW)
+            GPIO.output(self.in2, GPIO.LOW)
+            
             
             
             

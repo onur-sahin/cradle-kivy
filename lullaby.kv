@@ -23,11 +23,15 @@
     Button:
         text:"Load"
         on_release: root.show_load()
+        
+    Image:
+        source: "./Images/sound_icon.png"
+        size_hint: 0.5, 1
 
     
     Slider:
         orientation: "horizontal"
-        size_hint: 3, None
+        size_hint: 3, 1
         id: slider_sound
         min: 0
         max: 100

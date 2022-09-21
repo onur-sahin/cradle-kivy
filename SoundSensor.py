@@ -1,6 +1,7 @@
 from time import sleep
 from statistics import mean
 import RPi.GPIO as gpio
+from datetime import datetime
 
 
 if __name__!="__main__":
@@ -27,7 +28,9 @@ class SoundSensor:
         self.desibel = -1
 
     def soundSensorState(self):
+    
         return gpio.input(SoundSensor.soundSensorPin)
+    
 
 
 
@@ -46,7 +49,7 @@ if __name__=="__main__":
 
 
     else:
-        sleep_time = 0.5
+        sleep_time = 1
 
         adc = ADC()
 
@@ -57,6 +60,7 @@ if __name__=="__main__":
         db_values = []
 
         for i in range(0, 500):
+            
             raw_values.append(.0)
             db_values.append(.0)
 
@@ -68,12 +72,19 @@ if __name__=="__main__":
             # print("raw_value/desibel:", raw_value,'/', db_value )
 
 
-                    
             for i in range(0, 500):
+                
                 raw_value = adc.getSensorValue(channel=3)
+            
                 db_value = range_(raw_value, 0, 65472, 0, 120 )
                 raw_values[i] = raw_value
                 db_values[i] = db_value
                 
-            print("raw_value/desibel:",mean(raw_values),'/', mean(db_values) )
+                
+            print("raw_value/desibel:",max(raw_values),'/', max(db_values) )
             sleep(sleep_time)
+            
+            
+            
+            
+            

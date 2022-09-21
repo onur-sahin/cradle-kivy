@@ -52,14 +52,17 @@ MainPageLayout:
             
             BackgroundLabel:
                 text: tempature_boxlayout.warning_label
+                font_size:self.height*0.8
                 background_color: tempature_boxlayout.warning_color
             
             BackgroundLabel:
                 text: air_quality_boxlayout.warning_label
+                font_size:self.height*0.8
                 background_color: air_quality_boxlayout.warning_color
                 
             BackgroundLabel:
                 text: humidity_boxlayout.warning_label
+                font_size:self.height*0.8
                 background_color: humidity_boxlayout.warning_color
 
                 
@@ -67,6 +70,7 @@ MainPageLayout:
                 
 
         BoxLayout:
+            size_hint: 1, 0.7
             Label:
                 text: "buraya mesajlar yazılacak"
                 height: "50dp"
@@ -78,7 +82,77 @@ MainPageLayout:
         
         CradleGridLayout:
             size_hint: 1, 1
-        
+            
+            
+        BoxLayout:
+            
+            
+            BoxLayout:
+                orientation:"vertical"
+                
+                canvas.before:
+                    Color:
+                        rgba: 0.5, 0.5, 0.5, 0.8
+                    Rectangle:
+                        size:self.size
+                        pos:self.pos
+                
+                
+                    
+                Slider:
+                    id: slider_rocking_duration
+                    min: 10
+                    max: 900
+                    value: 10
+                    on_touch_move: None
+                
+                BoxLayout:
+                    
+                    Label:
+                        size_hint:0.3, 1
+                        text: "  " + str(int(slider_rocking_duration.value/60)) + " min." if slider_rocking_duration.value >=60 else str(int(slider_rocking_duration.value))+" sec."
+                        halign:"center"
+                        
+                    Label:
+                        text:"AUTO ROCKING DURATION"
+                        
+                
+                        
+            BoxLayout:
+                orientation:"vertical"
+                canvas.before:
+                    Color:
+                        rgba: 0.5, 0.5, 0.5, 0.8
+                    Rectangle:
+                        size:self.size
+                        pos:self.pos
+                
+                Slider:
+                    id: slider_listening_sensitivity
+                    min: 0
+                    max: 100
+                    value: 50
+                    on_touch_move: None
+            
+                BoxLayout:
+                    Label:
+                        size_hint:0.3, 1
+                        text:"  "+str(int(slider_listening_sensitivity.value)) + "%"
+                        halign:"center"
+                    
+                    Label:
+                        text:"LISTENING SENSITIVITY"
+                    
+                
+            
+                
+            
+                
+                
+        BoxLayout:
+            size_hint: 1, 0.5
+            Button:
+                text: "ABOUT"
 
     SettingGridLayout:
     

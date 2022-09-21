@@ -12,7 +12,7 @@
 # I would only use it if you have …
 
 
-#from Cradle import HomeBoxLayout
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.app import App
 
@@ -40,7 +40,6 @@ hallSensor = HallSensor()
 
 
 class MainApp(App):
-
 
     def build(self):
         pass

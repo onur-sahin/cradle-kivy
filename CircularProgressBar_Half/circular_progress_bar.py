@@ -338,13 +338,14 @@ class CircularProgressBar(Widget):
 
         with self.canvas:
             self.canvas.clear()
+            Color(0.2, 0.4, 0.5, 0.5)
             
-            if(self.parent.warning == False):
-                Color(0.2, 0.4, 0.5, 1)
+            # if(self.parent.warning == False):
+                # Color(0.2, 0.4, 0.5, 1)
                 
-            else:
-                self.warning_flag = not self.warning_flag
-                Color(0.2, 0.4, 0.5, 1 if self.warning_flag else 0.5)
+            # else:
+                # self.warning_flag = not self.warning_flag
+                # Color(0.2, 0.4, 0.5, 1 if self.warning_flag else 0.5)
             
             Rectangle(pos=self.parent.pos, size=self.parent.size)
            

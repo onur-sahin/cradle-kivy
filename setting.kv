@@ -2,17 +2,24 @@
 
 
 <SettingGridLayout@GridLayout>:
-
+    cols:2
+    
     canvas.before:
         Color:
-            rgba: 0, 1, 1, 1
+            rgba: 0.5, 0.5, 0.5, 1
         Rectangle:
             # self here refers to the widget i.e FloatLayout
             pos: self.pos
             size: self.size
- 
-    cols: 4
-    Button:
-        text: 'name'
-    Button:
-        text: 'lastname'
+
+    Label:
+        size_hint: 0.1, 1
+        text:"S\nE\nT\nT\nI\nN\nG\nS\n"
+
+        
+    BoxLayout:
+        Button:
+        Button:
+        
+         
+            

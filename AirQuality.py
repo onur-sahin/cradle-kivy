@@ -65,7 +65,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.add_widget(self.btn)
         self.add_widget(self.progbar)
         
-        self.warning_label = "ea"
+        self.warning_label = "" 
         self.warning_color = (1,0,0,0)
 
     def yeni(self, self_button):
@@ -78,7 +78,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality +=1# self.getAirQuality()
+        self.airQuality +=10# self.getAirQuality()
         
         self.setColor()
         
@@ -108,31 +108,32 @@ class AirQualityBoxLayout(FloatLayout):
     def setColor(self):
         
         p = self.airQuality
+        text= str(p)+"ppm"
         
         if (p  >=0 and p <= 50 ):                           #GOOD         -GREEN
             
-            self.progbar.progress_color, self.warning_color = (0, 1, 0, 1), (0.5, 0, 0, 1)
-            self.warning_label = "GOOD"
+            self.progbar.progress_color, self.warning_color = (0, 1, 0, 1), (0, 1, 0, 1)
+            self.warning_label = "GOOD  "+text
             
         elif (p >= 51 and p <= 100):                        #MODERATE     -YELLOW
-            self.progbar.progress_color, self.warning_color = (1, 1, 0, 1), (0.5, 0, 0, 1)
-            self.warning_label = "MODERATE"
+            self.progbar.progress_color, self.warning_color = (0.6, 0.6, 0, 1), (0.6, 0.6, 0, 1)
+            self.warning_label = "MODERATE "+text
          
         elif (p >= 101 and p <= 150):                       #UNHEALTY FOR SENSITIVE GROUPS- ORANGE
-            self.progbar.progress_color, self.warning_color = (1, 0.645, 0, 1), (0.5, 0, 0, 1)
-            self.warning_label = "UNHEALTY FOR SENSITIVE"
+            self.progbar.progress_color, self.warning_color = (0.95, 0.645, 0, 1), (0.95, 0.645, 0, 1)
+            self.warning_label = "Unhealty-sen."+text
             
         elif (p > 151 and p <= 200):                        #UNHEALTY     - RED
-            self.progbar.progress_color, self.warning_color = (1, 0, 0, 1), (0.5, 0, 0, 1)
-            self.warning_label = "UNHEALTY"
+            self.progbar.progress_color, self.warning_color = (1, 0, 0, 1), (1, 0, 0, 1)
+            self.warning_label = "UNHEALTY  "+text
             
         elif (p >= 201 and p <= 300 ) :                     #VERY UNHEALTY -PURPLE
-            self.progbar.progress_color, self.warning_color = (0.5, 0, 0.5, 1), (0.5, 0, 0, 1)
-            self.warning_label = "VERY UNHEALTY"
+            self.progbar.progress_color, self.warning_color = (0.5, 0, 0.5, 1), (0.5, 0, 0.5, 1)
+            self.warning_label = "Very UNHEALTY "+text
             
         elif (p >= 301):                                    #HAZARDOUS     -MAROON
             self.progbar.progress_color, self.warning_color = (0.5, 0, 0, 1), (0.5, 0, 0, 1)
-            self.warning_label = "HAZARDOUS"
+            self.warning_label = "HAZARDOUS "+text
             
 
 

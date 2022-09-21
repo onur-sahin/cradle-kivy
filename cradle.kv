@@ -18,7 +18,7 @@
         Button:
             id: btn_cradle
             text: 'CRADLE'
-            on_press: root.on_press_btn_cradle(slider_speed.value, btn_cradle, btn_stop)
+            on_press: root.on_press_btn_cradle(btn_cradle, btn_stop)
             disabled: False
 
         Button:
@@ -27,28 +27,34 @@
             on_press: root.on_press_btn_stop(btn_cradle, btn_stop)
             disabled: True
 
+        Image:
+            source: "./Images/speed_icon.png"
+            
+            size_hint: 0.2, 1
+            
         Slider:
             id: slider_speed
             min: 0
             max: 100
-            value: 25
+            value: root.motor_speed
             on_touch_move: root.on_touch_move_speed_slider(self)
+            
 
     BoxLayout:
         orientation: 'horizontal'
         
         ToggleButton:
+            id: auto_start_cradle
             text: "AUTO START CRADLE\n             " + "ON" if self.state=="down" else  "AUTO START CRADLE\n             " + "OFF"
-
+            on_state: root.on_state_btn_auto_start(auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop)
         
         ToggleButton:
+            id: auto_stop_cradle
             text: "AUTO STOP CRADLE\n              " +  "ON" if self.state=="down" else "AUTO STOP CRADLE\n              " + "OFF"
+            on_state: root.on_state_btn_auto_stop(auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop)
 
 
-
-    BoxLayout:
-        size_hint: 1, 0.5
-        Button:
-            text: "ABOUT"
+            
+    
          
         

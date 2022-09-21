@@ -118,7 +118,7 @@ class TempatureBoxLayout(FloatLayout):
             self.warning_label = "TOO COLD"
             
         elif (t >= 18 and t < 20):  #COLD     - TURQUAZ
-            self.progbar.progress_color, self.warning_color = (0, 1, 1, 1), (0, 1, 1, 1)
+            self.progbar.progress_color, self.warning_color = (0, 0.9, 0.9, 1), (0, 0.9, 0.9, 1)
             self.warning_label = "COLD"
         
         elif (t >= 20 and t <= 24): #NORMAL   - GREEN

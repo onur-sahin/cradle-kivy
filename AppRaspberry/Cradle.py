@@ -7,13 +7,15 @@ from Motor_Control import Motor_Control
 from __main__ import hallSensor
 from time import sleep
 import time
+import requests
 from SoundSensor import SoundSensor
 import threading
-
+from Recorder import Recorder
 
 class CradleGridLayout(GridLayout):
     
     crying_status = False
+    sound_status = False
 
     motor_control = Motor_Control()
     
@@ -23,7 +25,12 @@ class CradleGridLayout(GridLayout):
     
     listen_thread = threading.Thread()
     
+    recorder = Recorder()
+    
+    
     cradle_auto_rocking_time = 30 # seconds
+    
+    herokuURL = "http://cradle-server.herokuapp.com/predict"
     
 
     def on_press_btn_cradle(self, btn_cradle, btn_stop):
@@ -117,6 +124,11 @@ class CradleGridLayout(GridLayout):
             
             self.crying_status = self.check_sound()
             
+            if self.sound_status == True:
+                input_audio = self.record_audio()
+                
+                
+            
             
             if( auto_start_cradle.state=='down' and auto_stop_cradle.state=="normal" ):
                 
@@ -161,41 +173,52 @@ class CradleGridLayout(GridLayout):
                 sleep(1)
                 print("def listen_Baby while sonu 10 sn'lik bekleme başladı: ", i )
         
-            
         
             
         
         
     def check_sound(self)->bool:
-        
-    
 
         count = 0
-        
         toc = 0.0
         tic = time.perf_counter()
         
         while toc-tic < 5:
-        
-            
             
             for i in range(10000):
-                
                 count += self.soundSensor.soundSensorState()
                 
             toc = time.perf_counter()
-            
-                
-                
                 
             if count >= 1000:
                 return True
                 
-                
-                
         print("listened=", toc-tic)
         return False
-                
+        
+        
+    def record_audio(self):
+        
+        input_audio = self.recorder.stream_in.read(5*self.recorder.sample_rate)
+        
+        return input_audio
+    
+
+
+    def send_audio(self, input_audio):
+        
+        # resp = requests.post(self.herokuURL,
+                      # files={"file":open("yeni2.wav", "rb")})
+                      
+        resp = requests.post(self.herokuURL,
+                      files={"file":input_audio})
+                      
+        print(resp.text)
+                      
+                      
+        
+        
+        
 
             
             

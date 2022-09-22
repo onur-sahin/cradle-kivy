@@ -4,8 +4,12 @@ import wave
 import os
 import shutil
 import time
+import requests
 
 class Recorder:
+    
+    sample_rate = 22050
+    chuck_size = 1024
 
     def __init__(self):
 
@@ -13,16 +17,15 @@ class Recorder:
                 os.mkdir("./Records")
 
 
-
         self.pa = pyaudio.PyAudio()
 
         self.stream_in = self.pa.open(
-                                        rate=22050,
+                                        rate=self.sample_rate,
                                         channels=1,
                                         format=pyaudio.paInt16,
                                         input=True,                   # input stream flag
                                         input_device_index=7,         # input device index
-                                        frames_per_buffer=1024
+                                        frames_per_buffer=self.chuck_size
                                      )
 
     
@@ -37,7 +40,7 @@ class Recorder:
                 os.remove("./Records/"+file)
                 
 
-        output_filename = "./Records/" + time.strftime("%d%b%Y-%H.%M.%S", time.localtime()) + ".raw"
+        output_filename = "./Records/" + time.strftime("%Y%b%d-%H.%M.%S", time.localtime()) + ".raw"
 
 
         wav_file = wave.open(output_filename, 'wb')
@@ -63,14 +66,30 @@ if __name__ == "__main__":
     recorder = Recorder()
     
     # read 5 seconds of the input stream 
-    input_audio = recorder.stream_in.read( 5 * 22050 )
+    input_audio = recorder.stream_in.read( 1024 )
     
-
+    print(len(input_audio))
+    byte_content = input_audio
     
-
-    recorder.save_audio(input_audio)
-
-
+    list_16bits = [byte_content[i + 1] << 8 | byte_content[i] for i in range(0, len(byte_content), 2)]
+    print(list_16bits)
     
+    for i, y in enumerate(input_audio):
+        print(i, y)
+    
+    
+    # print(input_a
+
+    # recorder.save_audio(input_audio)
+    
+    
+    # resp = requests.post("http://cradle-server.herokuapp.com/predict",
+                      # files={"file":input_audio})
+
+
+# resp = requests.post("http://localhost:5000/predict",
+#                       files={"file":open("test.wav", "rb")})
+
+    # print(resp.text)
     
     

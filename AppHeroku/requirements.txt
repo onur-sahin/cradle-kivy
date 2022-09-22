@@ -1,9 +1,0 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-flask
-gunicorn
-numpy
-SoundFile
-torch==1.12.1+cpu
-torch-tb-profiler==0.4.0
-torchaudio==0.12.1+cpu
-torchvision==0.13.1+cpu

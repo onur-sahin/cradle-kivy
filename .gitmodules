@@ -1,0 +1,3 @@
+[submodule "AppCradleHeroku"]
+	path = AppCradleHeroku
+	url = https://github.com/onur-sahin/AppCradleHeroku.git

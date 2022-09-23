@@ -11,8 +11,21 @@ import requests
 from SoundSensor import SoundSensor
 import threading
 from Recorder import Recorder
+from kivy.properties import DictProperty
+
+from time import perf_counter
 
 class CradleGridLayout(GridLayout):
+    
+    tic = perf_counter()
+    toc = perf_counter()
+    
+    count_for_rocking = 0
+    
+    sleep_time = 10
+    
+    rocking_time = 0
+    
     
     crying_status = False
     sound_status = False
@@ -25,12 +38,17 @@ class CradleGridLayout(GridLayout):
     
     listen_thread = threading.Thread()
     
+    speed_thrd = threading.Thread()
+    
     recorder = Recorder()
     
     
     cradle_auto_rocking_time = 30 # seconds
     
     herokuURL = "http://cradle-server.herokuapp.com/predict"
+    
+    
+    resp = DictProperty()
     
 
     def on_press_btn_cradle(self, btn_cradle, btn_stop):
@@ -54,7 +72,6 @@ class CradleGridLayout(GridLayout):
         
     def stop_cradle(self):
         
-        
         toc = 0.0
         tic = time.perf_counter()
         
@@ -68,10 +85,10 @@ class CradleGridLayout(GridLayout):
                     return
 
             toc = time.perf_counter()
-            
-            
         
         self.motor_control.motor_stop()
+        
+        
                 
             
 
@@ -113,30 +130,85 @@ class CradleGridLayout(GridLayout):
             print("def on_press_btn_auto_stop(self, self_btn):")
             
 
+    def set_motor_speed(self):
+        
+        while self.listen_thread.is_alive():
+            
+            self.ids.slider_speeds.value =  75*pow(2.718, self.count_for_rocking)/(75+pow(2.718, self.count_for_rocking)) +25
+                
+            if self.crying_status == True:
+            
+                if self.count_for_rocking <= 10:
+                    self.count_for_rocking += 1
+                
+            if self.crying_status == False:
+                
+                if self.count_for_rocking > 0:
+                    self.count_for_rocking -= 1
+                
+            sleep(5)
+            
+            
         
         
         
     def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
-
+        
+        
         
         while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down':
         
             
-            self.crying_status = self.check_sound()
+            self.sound_status = self.check_sound()
+            
+            
             
             if self.sound_status == True:
-                input_audio = self.record_audio()
+                
+                input_audio = self.recorder.stream_in.read(5*self.recorder.sample_rate)
+                
+                try:
+                    self.resp = requests.post(   "http://cradle-server.herokuapp.com/predict",
+                                            files=None,
+                                            data=input_audio
+                                        ).json()
+                                    
+                                    
+                except BaseException as err:
+                    
+                    print("error in post process:"+str(err))
+                    sleep(5)
+                    continue
+                
+                if max(self.resp["output_detection"], key=self.resp["output_detection"].get) == 'Crying baby':
+                    print("bura3")
+                    self.crying_status = True
+                    self.tic = perf_counter()
+                    
+                else:
+                    self.crying_status = False
+                    
                 
                 
             
             
             if( auto_start_cradle.state=='down' and auto_stop_cradle.state=="normal" ):
                 
-                if(self.crying_status == True):
+                print("bura4")
+                if(self.crying_status == True and self.motor_control.motor_status==False):
                     btn_cradle.state="down"
                     btn_cradle.disabled = True
                     btn_stop.disabled = False
+            
                     self.start_cradle()
+                    
+                    print("bura5")
+                    
+                    if not self.speed_thrd.is_alive():
+                    
+                        self.speed_thrd = threading.Thread(target=self.set_motor_speed)
+                    
+                    
                     
                     
             elif(auto_start_cradle.state=='normal' and auto_stop_cradle.state=="down" ):
@@ -169,9 +241,9 @@ class CradleGridLayout(GridLayout):
                 
             # else can't be "normal" and "normal"
             
-            for i in range(10):
-                sleep(1)
-                print("def listen_Baby while sonu 10 sn'lik bekleme başladı: ", i )
+           
+            sleep(self.sleep_time)
+            print("def listen_Baby while sonu 10 sn'lik bekleme başladı: ")
         
         
             
@@ -197,23 +269,8 @@ class CradleGridLayout(GridLayout):
         return False
         
         
-    def record_audio(self):
-        
-        input_audio = self.recorder.stream_in.read(5*self.recorder.sample_rate)
-        
-        return input_audio
-    
 
-
-    def send_audio(self, input_audio):
         
-        # resp = requests.post(self.herokuURL,
-                      # files={"file":open("yeni2.wav", "rb")})
-                      
-        resp = requests.post(self.herokuURL,
-                      files={"file":input_audio})
-                      
-        print(resp.text)
                       
                       
         

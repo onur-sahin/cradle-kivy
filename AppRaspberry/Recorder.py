@@ -12,7 +12,7 @@ from kivy.properties import DictProperty
 class Recorder:
     
     sample_rate = 44100
-    chuck_size = 1024
+    chuck_size = 4096
     last_audio_path = ""
     
     a = DictProperty({})
@@ -28,25 +28,10 @@ class Recorder:
 
         self.pa = pyaudio.PyAudio()
         
-        # for i in range(2,3) :
+        # for i in range( self.pa.get_device_count() ) :
             # print("############################################################")
             # print(self.pa.get_device_info_by_index(i))
-            
-            
-            # for j in range(10):
-                # try:
-                    # self.stream_in = self.pa.open(
-                                                    # rate=self.sample_rate,
-                                                    # channels=j,
-                                                    # format=pyaudio.paInt16,
-                                                    # input=True,                   # input stream flag
-                                                    # input_device_index=i,         # input device index
-                                                    # frames_per_buffer=self.chuck_size
-                                                 # )
                                      
-                # except:
-                    # pass
-                    
                     
         self.stream_in = self.pa.open(
                                         rate=self.sample_rate,
@@ -85,7 +70,9 @@ class Recorder:
 
         # write samples to the file
         wav_file.writeframes(input_audio)
+        
         wav_file.close()
+        
 
 
 
@@ -95,9 +82,18 @@ if __name__ == "__main__":
     recorder = Recorder()
     
     # read 5 seconds of the input stream 
+    tic = time.perf_counter()
     input_audio = recorder.stream_in.read( recorder.sample_rate*5 )
-    
+    toc = time.perf_counter()
+    print(toc-tic)
     recorder.save_audio(input_audio)
+    
+    
+    
+    # input_audio = recorder.stream_in.read( recorder.sample_rate*5 )
+    
+    # recorder.save_audio(input_audio)
+    
     
     # input_audio = recorder.stream_in.read( recorder.sample_rate*5 )
     

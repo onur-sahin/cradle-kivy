@@ -22,7 +22,7 @@ class CradleGridLayout(GridLayout):
     
     count_for_rocking = 0
     
-    sleep_time = 10
+    sleep_time = 5
     
     rocking_time = 0
     
@@ -41,6 +41,7 @@ class CradleGridLayout(GridLayout):
     speed_thrd = threading.Thread()
     
     recorder = Recorder()
+
     
     
     cradle_auto_rocking_time = 30 # seconds
@@ -50,23 +51,27 @@ class CradleGridLayout(GridLayout):
     
     resp = DictProperty()
     
+    input_list = [0,0,0]
+    
+    resp_list = [0,0,0]
+    
 
     def on_press_btn_cradle(self, btn_cradle, btn_stop):
         
         btn_cradle.disabled = True
-        self.start_cradle()
+        self.start_cradle(self.motor_speed)
         btn_stop.disabled = False
         
-    def start_cradle(self):
-        self.motor_control.motor_start(self.motor_speed)
+    def start_cradle(self, speed):
+        self.motor_control.motor_start(speed)
         
         
     def on_press_btn_stop(self, btn_cradle, btn_stop):
-        
+
         btn_stop.disabled = True
         
         self.stop_cradle()
-
+        
         btn_cradle.disabled = False
         
         
@@ -93,8 +98,9 @@ class CradleGridLayout(GridLayout):
             
 
     def on_touch_move_speed_slider(self, self_slider):
-        self.motor_speed = int(self_slider.value)
-        self.motor_control.set_speed(self.motor_speed)
+        self.motor_speed = self_slider.value
+        if self.motor_control.motor_status == True:
+            self.motor_control.set_speed(self.motor_speed)
         
         
     def on_state_btn_auto_start(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
@@ -137,14 +143,13 @@ class CradleGridLayout(GridLayout):
         while self.listen_thread.is_alive():
             
             print("motor speed:", str(self.ids.slider_speed.value))
-            self.motor_speed = int( 75*pow(2.718, self.count_for_rocking)/(75+pow(2.718, self.count_for_rocking)) +25)
+            self.motor_speed = int( 75*pow(2.718, self.count_for_rocking/20)/(75+pow(2.718, self.count_for_rocking/20)) +25)
                 
-            self.ids.slider_speed.value =  self.motor_speed
-            self.motor_control.set_speed(self.motor_speed)
+            self.set_speed_general(self.motor_speed)
             
             if self.crying_status == True:
             
-                if self.count_for_rocking <= 10:
+                if self.count_for_rocking <= 180:
                     self.count_for_rocking += 1
                 
             if self.crying_status == False:
@@ -152,10 +157,13 @@ class CradleGridLayout(GridLayout):
                 if self.count_for_rocking > 0:
                     self.count_for_rocking -= 1
                 
-            sleep(5)
+            sleep(2)
             
             
-        
+    def set_speed_general(self, speed):
+        self.motor_speed = speed
+        self.ids.slider_speed.value =  self.motor_speed
+        # self.motor_control.set_speed(self.motor_speed)
         
         
     def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
@@ -171,17 +179,21 @@ class CradleGridLayout(GridLayout):
             
             if self.sound_status == True:
                 
-                input_audio = self.recorder.stream_in.read(5*self.recorder.sample_rate)
+                for i in range(3):
+                
+                    self.input_list[i] = self.recorder.stream_in.read(self.recorder.sample_rate*5, exception_on_overflow=False)
+                
                 
                 try:
-                    self.resp = requests.post(   "http://cradle-server.herokuapp.com/predict",
-                                            files=None,
-                                            data=input_audio
-                                        ).json()
-                                        
-                    self.recorder.save_audio(input_audio)
-                    print("bura3")
-                    print(self.resp)
+                    for i, input_audio in enumerate(self.input_list):
+                        self.resp_list[i] = requests.post(   "http://cradle-server.herokuapp.com/predict",
+                                                     files=None,
+                                                     data=input_audio
+                                                 ).json()
+                                            
+                        self.recorder.save_audio(input_audio)
+                        print("bura3")
+                        print(self.resp_list[i])
                                     
                 except BaseException as err:
 
@@ -189,29 +201,33 @@ class CradleGridLayout(GridLayout):
                     print("error in post process:"+str(err))
                     sleep(5)
                     continue
+                    
+                for resp in self.resp_list:
                 
-                if max(self.resp["output_detection"], key=self.resp["output_detection"].get) == 'Crying baby':
+                    if max(resp["output_detection"], key=resp["output_detection"].get) == 'Crying baby':
+                        
+                        self.crying_status = True
+                        
+                        self.tic = perf_counter()
+                        break
+                        
+                    else:
+                        self.crying_status = False
                     
-                    self.crying_status = True
-                    print("crying_status"+str(self.crying_status))
-                    self.tic = perf_counter()
-                    
-                else:
-                    self.crying_status = False
-                    
-                
+                print("crying_status"+str(self.crying_status))
                 
             
             
             if( auto_start_cradle.state=='down' and auto_stop_cradle.state=="normal" ):
                 
                 print("bura4")
+                
                 if(self.crying_status == True and self.motor_control.motor_status==False):
                     btn_cradle.state="down"
                     btn_cradle.disabled = True
                     btn_stop.disabled = False
-            
-                    self.start_cradle()
+                    self.set_speed_general(25)
+                    self.start_cradle(self.motor_speed)
                     
                     print("bura5")
                     
@@ -226,13 +242,23 @@ class CradleGridLayout(GridLayout):
             elif(auto_start_cradle.state=='normal' and auto_stop_cradle.state=="down" ):
                 
                 if(self.crying_status == False):
-                    btn_stop.state = "down"
-                    btn_stop.disabled=True
-                    self.stop_cradle()
-                    btn_stop.state = "normal"
                     
-                    btn_cradle.state = "normal"
-                    btn_cradle.disabled = False
+                    if not self.speed_thrd.is_alive():
+                    
+                        self.speed_thrd = threading.Thread(target=self.set_motor_speed)
+                        self.speed_thrd.start()
+                        
+                    if self.motor_speed < 26:
+                        
+                        btn_stop.state = "down"
+                        btn_stop.disabled=True
+                        
+                        self.stop_cradle()
+                        
+                        btn_stop.state = "normal"
+                        
+                        btn_cradle.state = "normal"
+                        btn_cradle.disabled = False
                 
             elif(auto_start_cradle.state=='down' and auto_stop_cradle.state=="down" ):
                 
@@ -240,7 +266,7 @@ class CradleGridLayout(GridLayout):
                     btn_cradle.state="down"
                     btn_cradle.disabled = True
                     btn_stop.disabled = False
-                    self.start_cradle()
+                    self.start_cradle(self.motor_speed)
                     
                 elif(self.crying_status == False):
                     btn_stop.state = "down"

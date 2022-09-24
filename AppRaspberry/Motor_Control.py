@@ -23,35 +23,36 @@ class Motor_Control:
     GPIO.output(in1, GPIO.LOW)
     GPIO.output(in2, GPIO.LOW)
 
-    default_speed = 25
-    current_speed = -1
+    default_speed = 25.0
+    current_speed = 0.0
     motor_status = False
     
     p = GPIO.PWM(en, 1000)
 
 
-    def set_speed(self, x = default_speed):
+    def set_speed(self, x):
         
         if(self.current_speed != x):
             self.p.ChangeDutyCycle(x)
             current_speed = x
 
        
-    def motor_start(self, speed=default_speed):
+    def motor_start(self, speed):
+        
         
         if self.motor_status == False:
         
             self.motor_status = True
                 
-            self.p.start(25)
-
-            self.set_speed(100)
-            sleep(2)
-
-            self.set_speed(speed)
+            self.p.start(100.0)
+            self.current_speed = 100
             
             GPIO.output(self.in1, GPIO.HIGH)
             GPIO.output(self.in2, GPIO.LOW)
+            
+            sleep(2)
+
+            self.set_speed(speed)
         
         
         

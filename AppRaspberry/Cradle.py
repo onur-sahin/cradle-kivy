@@ -140,7 +140,7 @@ class CradleGridLayout(GridLayout):
         
         print("set_motor_speed")
         
-        while self.listen_thread.is_alive():
+        while self.listen_thread.is_alive() and self.motor_control.motor_status:
             
             print("motor speed:", str(self.ids.slider_speed.value))
             self.motor_speed = int( 75*pow(2.718, self.count_for_rocking/20)/(75+pow(2.718, self.count_for_rocking/20)) +25)
@@ -163,7 +163,7 @@ class CradleGridLayout(GridLayout):
     def set_speed_general(self, speed):
         self.motor_speed = speed
         self.ids.slider_speed.value =  self.motor_speed
-        # self.motor_control.set_speed(self.motor_speed)
+        self.motor_control.set_speed(self.motor_speed)
         
         
     def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
@@ -183,24 +183,29 @@ class CradleGridLayout(GridLayout):
                 
                     self.input_list[i] = self.recorder.stream_in.read(self.recorder.sample_rate*5, exception_on_overflow=False)
                 
+
                 
-                try:
-                    for i, input_audio in enumerate(self.input_list):
-                        self.resp_list[i] = requests.post(   "http://cradle-server.herokuapp.com/predict",
+                index = 0
+                while index < 3:
+                    
+                    try:
+                        self.resp_list[index] = requests.post(   "http://cradle-server.herokuapp.com/predict",
                                                      files=None,
-                                                     data=input_audio
+                                                     data=self.input_list[index]
                                                  ).json()
                                             
-                        self.recorder.save_audio(input_audio)
+                        self.recorder.save_audio(self.input_list[index])
                         print("bura3")
-                        print(self.resp_list[i])
-                                    
-                except BaseException as err:
+                        print(self.resp_list[index])
+                        
+                        index += 1
+                                
+                    except BaseException as err:
 
-                    
-                    print("error in post process:"+str(err))
-                    sleep(5)
-                    continue
+                        
+                        print("error in post process:"+str(err))
+                        sleep(5)
+                        
                     
                 for resp in self.resp_list:
                 
@@ -215,6 +220,9 @@ class CradleGridLayout(GridLayout):
                         self.crying_status = False
                     
                 print("crying_status"+str(self.crying_status))
+                
+            else:
+                self.crying_status = False
                 
             
             
@@ -243,7 +251,7 @@ class CradleGridLayout(GridLayout):
                 
                 if(self.crying_status == False):
                     
-                    if not self.speed_thrd.is_alive():
+                    if not self.speed_thrd.is_alive() and self.motor_control.motor_status:
                     
                         self.speed_thrd = threading.Thread(target=self.set_motor_speed)
                         self.speed_thrd.start()
@@ -259,23 +267,43 @@ class CradleGridLayout(GridLayout):
                         
                         btn_cradle.state = "normal"
                         btn_cradle.disabled = False
+                        
+                        auto_stop_cradle.state = "normal"
+                        break
                 
             elif(auto_start_cradle.state=='down' and auto_stop_cradle.state=="down" ):
                 
-                if(self.crying_status == True):
+                if not self.speed_thrd.is_alive() and self.motor_control.motor_status:
+                    
+                    self.speed_thrd = threading.Thread(target=self.set_motor_speed)
+                    self.speed_thrd.start()
+                
+                if(self.crying_status == True and not self.motor_control.motor_status):
                     btn_cradle.state="down"
                     btn_cradle.disabled = True
                     btn_stop.disabled = False
                     self.start_cradle(self.motor_speed)
                     
-                elif(self.crying_status == False):
-                    btn_stop.state = "down"
-                    btn_stop.disabled=True
-                    self.stop_cradle()
-                    btn_stop.state = "normal"
+                    if not self.speed_thrd.is_alive():
                     
-                    btn_cradle.state = "normal"
-                    btn_cradle.disabled = False
+                        self.speed_thrd = threading.Thread(target=self.set_motor_speed)
+                        self.speed_thrd.start()
+                    
+                elif(self.crying_status == False and self.motor_control.motor_status):
+                    
+                    
+                    
+                    if self.motor_speed < 26:
+
+                        btn_stop.state = "down"
+                        btn_stop.disabled=True
+
+                        self.stop_cradle()
+
+                        btn_stop.state = "normal"
+
+                        btn_cradle.state = "normal"
+                        btn_cradle.disabled = False
                 
             # else can't be "normal" and "normal"
             

@@ -78,7 +78,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality +=10# self.getAirQuality()
+        self.airQuality = self.getAirQuality()
         
         self.setColor()
         

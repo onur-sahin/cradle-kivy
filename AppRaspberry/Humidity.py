@@ -59,8 +59,8 @@ class HumidityBoxLayout(FloatLayout):
         
         self.progbar.label = Label(text="{}%", font_size = self.progbar.widget_size*0.3 )
 
-      #  self.temp, self.humidity = self.dht11.getTempAndHumidity()
-        self.humidity += 1
+        self.temp, self.humidity = self.dht11.getTempAndHumidity()
+        
         self.btn.size = self.size
         self.btn.pos = self.pos
         

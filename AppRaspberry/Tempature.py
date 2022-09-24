@@ -70,7 +70,7 @@ class TempatureBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.tempature +=1# self.lm35_driver.getTempature()
+        self.tempature = self.lm35_driver.getTempature()
         
         self.tempature = int(self.tempature)
         

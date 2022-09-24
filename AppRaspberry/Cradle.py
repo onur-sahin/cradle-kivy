@@ -132,10 +132,16 @@ class CradleGridLayout(GridLayout):
 
     def set_motor_speed(self):
         
+        print("set_motor_speed")
+        
         while self.listen_thread.is_alive():
             
-            self.ids.slider_speeds.value =  75*pow(2.718, self.count_for_rocking)/(75+pow(2.718, self.count_for_rocking)) +25
+            print("motor speed:", str(self.ids.slider_speed.value))
+            self.motor_speed = int( 75*pow(2.718, self.count_for_rocking)/(75+pow(2.718, self.count_for_rocking)) +25)
                 
+            self.ids.slider_speed.value =  self.motor_speed
+            self.motor_control.set_speed(self.motor_speed)
+            
             if self.crying_status == True:
             
                 if self.count_for_rocking <= 10:
@@ -172,17 +178,22 @@ class CradleGridLayout(GridLayout):
                                             files=None,
                                             data=input_audio
                                         ).json()
-                                    
+                                        
+                    self.recorder.save_audio(input_audio)
+                    print("bura3")
+                    print(self.resp)
                                     
                 except BaseException as err:
+
                     
                     print("error in post process:"+str(err))
                     sleep(5)
                     continue
                 
                 if max(self.resp["output_detection"], key=self.resp["output_detection"].get) == 'Crying baby':
-                    print("bura3")
+                    
                     self.crying_status = True
+                    print("crying_status"+str(self.crying_status))
                     self.tic = perf_counter()
                     
                 else:
@@ -207,6 +218,7 @@ class CradleGridLayout(GridLayout):
                     if not self.speed_thrd.is_alive():
                     
                         self.speed_thrd = threading.Thread(target=self.set_motor_speed)
+                        self.speed_thrd.start()
                     
                     
                     
@@ -241,9 +253,11 @@ class CradleGridLayout(GridLayout):
                 
             # else can't be "normal" and "normal"
             
-           
-            sleep(self.sleep_time)
             print("def listen_Baby while sonu 10 sn'lik bekleme başladı: ")
+            
+            sleep(self.sleep_time)
+            
+            
         
         
             

@@ -11,7 +11,7 @@ from kivy.properties import DictProperty
 
 class Recorder:
     
-    sample_rate = 22050
+    sample_rate = 44100
     chuck_size = 1024
     last_audio_path = ""
     
@@ -23,21 +23,39 @@ class Recorder:
         if not os.path.isdir("./Records"):
                 os.mkdir("./Records")
                 
-
+      
 
 
         self.pa = pyaudio.PyAudio()
-
+        
+        # for i in range(2,3) :
+            # print("############################################################")
+            # print(self.pa.get_device_info_by_index(i))
+            
+            
+            # for j in range(10):
+                # try:
+                    # self.stream_in = self.pa.open(
+                                                    # rate=self.sample_rate,
+                                                    # channels=j,
+                                                    # format=pyaudio.paInt16,
+                                                    # input=True,                   # input stream flag
+                                                    # input_device_index=i,         # input device index
+                                                    # frames_per_buffer=self.chuck_size
+                                                 # )
+                                     
+                # except:
+                    # pass
+                    
+                    
         self.stream_in = self.pa.open(
                                         rate=self.sample_rate,
                                         channels=1,
                                         format=pyaudio.paInt16,
                                         input=True,                   # input stream flag
-                                        input_device_index=7,         # input device index
+                                        input_device_index=2,         # input device index
                                         frames_per_buffer=self.chuck_size
                                      )
-                                     
-        
 
     
     def save_audio(self, input_audio):
@@ -61,7 +79,7 @@ class Recorder:
         # define audio stream properties
         wav_file.setnchannels(1)        # number of channels  - mono channel
         wav_file.setsampwidth(2)        # sample width in bytes
-        wav_file.setframerate(22050)    # sampling rate in Hz
+        wav_file.setframerate(self.sample_rate)    # sampling rate in Hz
         
         
 
@@ -80,13 +98,17 @@ if __name__ == "__main__":
     input_audio = recorder.stream_in.read( recorder.sample_rate*5 )
     
     recorder.save_audio(input_audio)
-        
-    resp = requests.post(   "http://cradle-server.herokuapp.com/predict",
-                            files=None,
-                            data=input_audio #bytes
-                        ).json()
     
-    print(resp["output_detection"])
+    # input_audio = recorder.stream_in.read( recorder.sample_rate*5 )
+    
+    # recorder.save_audio(input_audio)
+        
+    # resp = requests.post(   "http://cradle-server.herokuapp.com/predict",
+                            # files=None,
+                            # data=input_audio #bytes
+                        # ).json()
+    
+    # print(resp["output_detection"])
     
     
     # recorder.a = requests.post(   "http://cradle-server.herokuapp.com/predict",

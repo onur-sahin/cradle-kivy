@@ -5,6 +5,7 @@ from kivy.properties import NumericProperty
 
 from Motor_Control import Motor_Control
 from __main__ import hallSensor
+
 from time import sleep
 import time
 import requests
@@ -14,6 +15,8 @@ from Recorder import Recorder
 from kivy.properties import DictProperty
 
 from time import perf_counter
+
+
 
 class CradleGridLayout(GridLayout):
     
@@ -166,13 +169,17 @@ class CradleGridLayout(GridLayout):
         self.ids.slider_speed.value =  self.motor_speed
         self.motor_control.set_speed(self.motor_speed)
         
+    
+        
+        
         
     def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
         
-        
+    
         
         while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down' or self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
-                 
+            
+            
     
             self.sound_status = self.check_sound()
             
@@ -314,11 +321,12 @@ class CradleGridLayout(GridLayout):
             
             if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
                 if self.crying_status == True:
+  
                     
-                    if(self.parent.parent.ids.lullabyWidget.is_started == False)
+                    if(self.parent.parent.ids.lullabyWidget.is_started == False):
                         self.parent.parent.ids.lullabyWidget.play()
                         
-                    if(self.parent.parent.ids.lullabyWidget.is_paused == True
+                    if(self.parent.parent.ids.lullabyWidget.is_paused == True):
                         self.parent.parent.ids.lullabyWidget.play()
                         
             
@@ -351,18 +359,6 @@ class CradleGridLayout(GridLayout):
         print("listened=", toc-tic)
         return False
         
-        
-
-        
-                      
-                      
-        
-        
-        
-
-            
-            
-            
         
         
         

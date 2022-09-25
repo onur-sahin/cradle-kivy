@@ -7,6 +7,8 @@ from kivy.properties import Clock
 from kivy.properties import BooleanProperty
 from kivy.properties import ObjectProperty
 from kivy.properties import NumericProperty
+from kivy.properties import ListProperty
+from kivy.properties import StringProperty
 
 import os
 from kivy.uix.popup import Popup
@@ -25,13 +27,13 @@ class LullabyWidget(BoxLayout):
     auto_play_status = BooleanProperty(False)
 
 
-    music_directory = None
-    filePath = ""
+    music_directory = StringProperty("/")
+    filePath = StringProperty("")
 
-    listofsongs = []
-    formattedlist = []
-    realnames = []
-    index = 0
+    listofsongs = ListProperty([])
+    formattedlist = ListProperty([])
+    realnames = ListProperty([])
+    index = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -135,7 +137,7 @@ class LullabyWidget(BoxLayout):
 
 
     def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup, path=self.music_directory)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.5, 0.5))
         self._popup.open()
@@ -144,6 +146,11 @@ class LullabyWidget(BoxLayout):
     
 
     def load(self, path, filename):
+        
+        print(type(path))
+        print(path)
+        print(type(filename))
+        print(filename)
         
         self.listofsongs.clear()
 
@@ -189,15 +196,6 @@ class LullabyWidget(BoxLayout):
             
 
 
-        # except:
-
-        #     return 0
-
-
-        if self.listofsongs.__len__() != 0:
-            self.play()
-
-
     def on_touch_music_volume_slider(self, self_slider):
         self.lullaby_volume = self_slider.value
         mixer.music.set_volume(  float(self.lullaby_volume)/100  )
@@ -207,6 +205,10 @@ class LullabyWidget(BoxLayout):
         
     def auto_play(self, btn_auto_play):
         
+        if(self.listofsongs.__len__() == 0):
+            self.show_load()
+            return
+        
         if btn_auto_play.state == 'down':
             self.auto_play_status = True
         else:
@@ -215,6 +217,8 @@ class LullabyWidget(BoxLayout):
 
 
 class LoadDialog(FloatLayout):
+    
+    path = StringProperty("")
 
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
@@ -226,9 +230,9 @@ class LoadDialog(FloatLayout):
 
     def directorychoose(self):
         
-        os.chdir(self.folderPath)
+        os.chdir(self.music_directory)
 
-        for file in os.listdir(self.folderPath):
+        for file in os.listdir(self.music_directory):
             if file.endswith(".mp3"):
                 print('file is ',file)
                 songName = file.split('.')[0]

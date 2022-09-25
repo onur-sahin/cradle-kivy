@@ -8,7 +8,7 @@
         id:btn_play
         text:"play"
         on_press: root.play()
-        on_state: root.play()
+
     Button:
         text:"stop"
         on_press: root.stop()
@@ -57,6 +57,7 @@
         FileChooserListView:
             id: filechooser
             dirselect: True
+            path:root.path
             # filters: [lambda folder, filename: not filename.endswith('')]
 
         BoxLayout:

@@ -1,11 +1,14 @@
 #:kivy 2.1.0
 
 <LullabyWidget>:
+
  
 
     Button:
+        id:btn_play
         text:"play"
         on_press: root.play()
+        on_state: root.play()
     Button:
         text:"stop"
         on_press: root.stop()
@@ -24,14 +27,19 @@
         text:"Load"
         on_release: root.show_load()
         
+    ToggleButton:
+        id:btn_auto_play
+        text:"auto\nplay"
+        on_state:root.auto_play(btn_auto_play)
+        
     Image:
         source: "./Images/sound_icon.png"
-        size_hint: 0.5, 1
+        size_hint: 0.7, 1
 
     
     Slider:
         orientation: "horizontal"
-        size_hint: 3, 1
+        size_hint: 3.5, 1
         id: slider_sound
         min: 0
         max: 100

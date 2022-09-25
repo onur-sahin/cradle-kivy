@@ -21,6 +21,8 @@ class LullabyWidget(BoxLayout):
     random_play_music = BooleanProperty(False)
     repeat_playlist = BooleanProperty(True)
     lullaby_volume = NumericProperty(0.5)
+    
+    auto_play_status = BooleanProperty(False)
 
 
     music_directory = None
@@ -200,6 +202,16 @@ class LullabyWidget(BoxLayout):
         self.lullaby_volume = self_slider.value
         mixer.music.set_volume(  float(self.lullaby_volume)/100  )
         pass
+        
+        
+        
+    def auto_play(self, btn_auto_play):
+        
+        if btn_auto_play.state == 'down':
+            self.auto_play_status = True
+        else:
+            self.auto_play_status = False
+            
 
 
 class LoadDialog(FloatLayout):

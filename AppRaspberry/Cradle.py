@@ -34,6 +34,7 @@ class CradleGridLayout(GridLayout):
     
     motor_speed = NumericProperty(25)
     
+    
     soundSensor   = SoundSensor()
     
     listen_thread = threading.Thread()
@@ -170,9 +171,9 @@ class CradleGridLayout(GridLayout):
         
         
         
-        while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down':
-        
-            
+        while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down' or self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
+                 
+    
             self.sound_status = self.check_sound()
             
             
@@ -237,13 +238,16 @@ class CradleGridLayout(GridLayout):
                     self.set_speed_general(25)
                     self.start_cradle(self.motor_speed)
                     
+                    
                     print("bura5")
                     
                     if not self.speed_thrd.is_alive():
                     
                         self.speed_thrd = threading.Thread(target=self.set_motor_speed)
                         self.speed_thrd.start()
-                    
+                        
+                        
+                                
                     
                     
                     
@@ -306,6 +310,17 @@ class CradleGridLayout(GridLayout):
                         btn_cradle.disabled = False
                 
             # else can't be "normal" and "normal"
+            
+            
+            if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
+                if self.crying_status == True:
+                    
+                    if(self.parent.parent.ids.lullabyWidget.is_started == False)
+                        self.parent.parent.ids.lullabyWidget.play()
+                        
+                    if(self.parent.parent.ids.lullabyWidget.is_paused == True
+                        self.parent.parent.ids.lullabyWidget.play()
+                        
             
             print("def listen_Baby while sonu 10 sn'lik bekleme başladı: ")
             

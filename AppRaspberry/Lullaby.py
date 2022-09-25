@@ -60,10 +60,11 @@ class LullabyWidget(BoxLayout):
         if(self.listofsongs.__len__() == 0):
             self.show_load()
             return
+            
     
         if( self.is_paused == False and self.is_started == False):
     
-            music = open(self.listofsongs[self.index])
+            music = open(self.music_directory+'/'+self.listofsongs[self.index])
 
             mixer.music.load(music)
             mixer.music.set_volume(1)
@@ -158,8 +159,7 @@ class LullabyWidget(BoxLayout):
         
         
         if(os.path.isdir(filename[0])):
-            self.music_directory = str(filename[0])
-            
+            self.music_directory = filename[0]
             
                 
         else:
@@ -168,7 +168,7 @@ class LullabyWidget(BoxLayout):
             print(selected_music)
      
 
-        os.chdir(self.music_directory)
+        # os.chdir(self.music_directory)
 
         counter = 0
 
@@ -191,7 +191,15 @@ class LullabyWidget(BoxLayout):
 
         for file in self.realnames:
             self.formattedlist.append(file)
-            #formattedlist.append(file + "\n")  
+            #formattedlist.append(file + "\n")
+            
+        if self.is_started == True:
+            self.stop()
+            self.play()
+            
+        else:
+            self.play()
+                
                 
             
 
@@ -214,6 +222,21 @@ class LullabyWidget(BoxLayout):
         else:
             self.auto_play_status = False
             
+    def auto_play(self, btn_auto_play):
+        
+        if(not self.parent.parent.ids.cradleGridLayout.listen_thread.is_alive()):
+        
+            self.parent.parent.ids.cradleGridLayout.listen_thread = threading.Thread(target=self.listen_baby,
+                                                  args=(self.parent.parent.ids.cradleGridLayout.ids.auto_start_cradle,
+                                                        self.parent.parent.ids.cradleGridLayout.ids.auto_stop_cradle,
+                                                        self.parent.parent.ids.cradleGridLayout.ids.btn_cradle,
+                                                        self.parent.parent.ids.cradleGridLayout.ids.btn_stop,
+                                                        btn_auto_play)
+                                                 )
+            self.parent.parent.ids.cradleGridLayout.listen_thread.start()
+        
+            print("def on_press_btn_auto_stop(self, self_btn):")
+            
 
 
 class LoadDialog(FloatLayout):
@@ -230,7 +253,7 @@ class LoadDialog(FloatLayout):
 
     def directorychoose(self):
         
-        os.chdir(self.music_directory)
+        # os.chdir(self.music_directory)
 
         for file in os.listdir(self.music_directory):
             if file.endswith(".mp3"):

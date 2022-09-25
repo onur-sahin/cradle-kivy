@@ -115,7 +115,8 @@ class CradleGridLayout(GridLayout):
                                                   args=(auto_start_cradle, 
                                                         auto_stop_cradle,
                                                         btn_cradle,
-                                                        btn_stop) 
+                                                        btn_stop,
+                                                        self.parent.parent.ids.lullabyWidget.ids.btn_auto_play) 
                                                  )
             
             self.listen_thread.start()
@@ -133,7 +134,8 @@ class CradleGridLayout(GridLayout):
                                                   args=(auto_start_cradle,
                                                         auto_stop_cradle,
                                                         btn_cradle,
-                                                        btn_stop)
+                                                        btn_stop,
+                                                        self.parent.parent.ids.lullabyWidget.ids.btn_auto_play)
                                                  )
             self.listen_thread.start()
         
@@ -173,11 +175,11 @@ class CradleGridLayout(GridLayout):
         
         
         
-    def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
+    def listen_baby(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop, btn_auto_play):
         
     
         
-        while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down' or self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
+        while auto_start_cradle.state=='down' or auto_stop_cradle.state=='down' or btn_auto_play.state == 'down':
             
             
     
@@ -194,9 +196,11 @@ class CradleGridLayout(GridLayout):
 
                 
                 index = 0
+                retry = 0
                 while index < 3:
                     
                     try:
+                        
                         self.resp_list[index] = requests.post(   "http://cradle-server.herokuapp.com/predict",
                                                      files=None,
                                                      data=self.input_list[index]
@@ -207,12 +211,16 @@ class CradleGridLayout(GridLayout):
                         print(self.resp_list[index])
                         
                         index += 1
+                        retry = 0
                                 
                     except BaseException as err:
-
+                        if retry == 5:
+                            return
+                        
+                        retry += 1
                         
                         print("error in post process:"+str(err))
-                        sleep(5)
+                        sleep(2)
                         
                     
                 for resp in self.resp_list:
@@ -319,7 +327,7 @@ class CradleGridLayout(GridLayout):
             # else can't be "normal" and "normal"
             
             
-            if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state == 'down':
+            if btn_auto_play.state == 'down':
                 if self.crying_status == True:
   
                     
@@ -335,7 +343,8 @@ class CradleGridLayout(GridLayout):
             sleep(self.sleep_time)
             
             
-        
+        if self.speed_thrd.is_alive():
+            self.speed_thrd.terminate()
         
             
         

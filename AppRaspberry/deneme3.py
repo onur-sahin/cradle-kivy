@@ -1,4 +1,10 @@
-import pyaudio
-p = pyaudio.PyAudio()
-for ii in range(p.get_device_count()):
-    print(p.get_device_info_by_index(ii).get('name'))
+import matplotlib.pyplot as plt
+# import librosa
+import soundfile
+
+
+sig = soundfile.read("/home/pi/projects/cradle-kivy-geany/AppRaspberry/Records/2022Sep25-12.24.13.wav")
+
+plt.plot(sig[0])
+
+plt.show()

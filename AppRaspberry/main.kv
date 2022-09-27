@@ -72,10 +72,22 @@ MainPageLayout:
                 
 
         BoxLayout:
-            size_hint: 1, 0.7
-            Label:
-                text: "buraya mesajlar yazılacak"
-                height: "50dp"
+    
+            Button:
+                id:message_box
+                size_hint: 0.5, 1
+                text:"NO MESSAGE"
+                #Label:
+                #    text: str(root.ids.cradleGridLayout.resp)
+                #    height: "50dp"
+            BoxLayout:
+                orientation:"vertical"
+                Label:
+                    text:"LAST TEN MESSAGES"
+                    size_hint:1, 0.15
+                MessageRecycleView:
+                    id:messageRV
+            
 
         LullabyWidget:
             id:lullabyWidget
@@ -85,71 +97,7 @@ MainPageLayout:
         
         CradleGridLayout:
             id:cradleGridLayout
-            size_hint: 1, 1
-            
-            
-        BoxLayout:
-            
-            
-            BoxLayout:
-                orientation:"vertical"
-                
-                canvas.before:
-                    Color:
-                        rgba: 0.5, 0.5, 0.5, 0.8
-                    Rectangle:
-                        size:self.size
-                        pos:self.pos
-                
-                
-                    
-                Slider:
-                    id: slider_rocking_duration
-                    min: 10
-                    max: 900
-                    value: 10
-                    on_touch_move: None
-                
-                BoxLayout:
-                    
-                    Label:
-                        size_hint:0.3, 1
-                        text: "  " + str(int(slider_rocking_duration.value/60)) + " min." if slider_rocking_duration.value >=60 else str(int(slider_rocking_duration.value))+" sec."
-                        halign:"center"
-                        
-                    Label:
-                        text:"AUTO ROCKING DURATION"
-                        
-                
-                        
-            BoxLayout:
-                orientation:"vertical"
-                canvas.before:
-                    Color:
-                        rgba: 0.5, 0.5, 0.5, 0.8
-                    Rectangle:
-                        size:self.size
-                        pos:self.pos
-                
-                Slider:
-                    id: slider_listening_sensitivity
-                    min: 0
-                    max: 100
-                    value: 50
-                    on_touch_move: None
-            
-                BoxLayout:
-                    Label:
-                        size_hint:0.3, 1
-                        text:"  "+str(int(slider_listening_sensitivity.value)) + "%"
-                        halign:"center"
-                    
-                    Label:
-                        text:"LISTENING SENSITIVITY"
-                    
-                
-            
-                
+            size_hint: 1, 2
             
                 
                 
@@ -160,6 +108,19 @@ MainPageLayout:
 
     SettingGridLayout:
     
+    
+    
+    
+<MessageRecycleView@RecycleView>:
+
+    viewclass:"MessageButton"
+    
+    RecycleBoxLayout:
+        default_size: None, 20
+        default_size_hint:1, None
+        size_hint_y:None
+        height:self.minimum_height
+        orientation:'vertical'
     
     
 

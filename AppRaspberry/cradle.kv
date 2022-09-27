@@ -55,6 +55,65 @@
             on_state: root.on_state_btn_auto_stop(auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop)
 
 
+
+    BoxLayout:
+                
+                
+        BoxLayout:
+            orientation:"vertical"
             
-         
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 0.8
+                Rectangle:
+                    size:self.size
+                    pos:self.pos
+            
+            
+                
+            Slider:
+                id: slider_rocking_duration
+                min: 10
+                max: 900
+                value: 10
+                on_touch_move: None
+            
+            BoxLayout:
+                
+                Label:
+                    size_hint:0.3, 1
+                    text: "  " + str(int(slider_rocking_duration.value/60)) + " min." if slider_rocking_duration.value >=60 else str(int(slider_rocking_duration.value))+" sec."
+                    halign:"center"
+                    
+                Label:
+                    text:"AUTO ROCKING DURATION"
+                    
+            
+                    
+        BoxLayout:
+            orientation:"vertical"
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 0.8
+                Rectangle:
+                    size:self.size
+                    pos:self.pos
+            
+            Slider:
+                id: slider_listening_sensitivity
+                min: 5.0
+                max: 99.0
+                value: root.listening_sensitivity
+                on_touch_move: None
         
+            BoxLayout:
+                Label:
+                    size_hint:0.3, 1
+                    text:"  "+str(int(slider_listening_sensitivity.value)) + "%"
+                    halign:"center"
+                
+                Label:
+                    text:"LISTENING SENSITIVITY"
+
+
+

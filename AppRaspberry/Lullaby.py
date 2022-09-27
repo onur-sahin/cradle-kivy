@@ -9,7 +9,7 @@ from kivy.properties import ObjectProperty
 from kivy.properties import NumericProperty
 from kivy.properties import ListProperty
 from kivy.properties import StringProperty
-
+import threading
 import os
 from kivy.uix.popup import Popup
 
@@ -197,8 +197,7 @@ class LullabyWidget(BoxLayout):
             self.stop()
             self.play()
             
-        else:
-            self.play()
+    
                 
                 
             
@@ -211,33 +210,28 @@ class LullabyWidget(BoxLayout):
         
         
         
+    
+            
     def auto_play(self, btn_auto_play):
-        
-        if(self.listofsongs.__len__() == 0):
-            self.show_load()
-            return
-        
         if btn_auto_play.state == 'down':
-            self.auto_play_status = True
-        else:
-            self.auto_play_status = False
             
-    def auto_play(self, btn_auto_play):
-        
-        if(not self.parent.parent.ids.cradleGridLayout.listen_thread.is_alive()):
-        
-            self.parent.parent.ids.cradleGridLayout.listen_thread = threading.Thread(target=self.listen_baby,
-                                                  args=(self.parent.parent.ids.cradleGridLayout.ids.auto_start_cradle,
-                                                        self.parent.parent.ids.cradleGridLayout.ids.auto_stop_cradle,
-                                                        self.parent.parent.ids.cradleGridLayout.ids.btn_cradle,
-                                                        self.parent.parent.ids.cradleGridLayout.ids.btn_stop,
-                                                        btn_auto_play)
-                                                 )
-            self.parent.parent.ids.cradleGridLayout.listen_thread.start()
-        
-            print("def on_press_btn_auto_stop(self, self_btn):")
+            if(self.listofsongs.__len__() == 0):
+                self.show_load()
             
-
+            if(not self.parent.parent.ids.cradleGridLayout.listen_thread.is_alive()):
+            
+                self.parent.parent.ids.cradleGridLayout.listen_thread = threading.Thread(target=self.parent.parent.ids.cradleGridLayout.listen_baby,
+                                                      args=(self.parent.parent.ids.cradleGridLayout.ids.auto_start_cradle,
+                                                            self.parent.parent.ids.cradleGridLayout.ids.auto_stop_cradle,
+                                                            self.parent.parent.ids.cradleGridLayout.ids.btn_cradle,
+                                                            self.parent.parent.ids.cradleGridLayout.ids.btn_stop,
+                                                            btn_auto_play)
+                                                     )
+                self.parent.parent.ids.cradleGridLayout.listen_thread.start()
+            
+                print("def on_press_btn_auto_stop(self, self_btn):")
+            
+        
 
 class LoadDialog(FloatLayout):
     

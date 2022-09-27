@@ -7,6 +7,7 @@ from Motor_Control import Motor_Control
 from __main__ import hallSensor
 
 from time import sleep
+from datetime import datetime
 import time
 import requests
 from SoundSensor import SoundSensor
@@ -25,10 +26,11 @@ class CradleGridLayout(GridLayout):
     
     count_for_rocking = 0
     
-    sleep_time = 5
+    sleep_time = 1
     
     rocking_time = 0
     
+    btn_id = 0
     
     crying_status = False
     sound_status = False
@@ -36,6 +38,8 @@ class CradleGridLayout(GridLayout):
     motor_control = Motor_Control()
     
     motor_speed = NumericProperty(25)
+    
+    listening_sensitivity = NumericProperty(75.0)
     
     
     soundSensor   = SoundSensor()
@@ -45,6 +49,7 @@ class CradleGridLayout(GridLayout):
     speed_thrd = threading.Thread()
     
     recorder = Recorder()
+    
 
     
     
@@ -53,7 +58,7 @@ class CradleGridLayout(GridLayout):
     herokuURL = "http://cradle-server.herokuapp.com/predict"
     
     
-    resp = DictProperty()
+    resp = DictProperty({"baby_status":"The baby is calm."})
     
     input_list = [0,0,0]
     
@@ -193,7 +198,6 @@ class CradleGridLayout(GridLayout):
                 
                     self.input_list[i] = self.recorder.stream_in.read(self.recorder.sample_rate*5, exception_on_overflow=False)
                 
-
                 
                 index = 0
                 retry = 0
@@ -201,10 +205,10 @@ class CradleGridLayout(GridLayout):
                     
                     try:
                         
-                        self.resp_list[index] = requests.post(   "http://cradle-server.herokuapp.com/predict",
-                                                     files=None,
-                                                     data=self.input_list[index]
-                                                 ).json()
+                        self.resp_list[index] = requests.post( herokuURL,
+                                                               files=None,
+                                                               data=self.input_list[index]
+                                                             ).json()
                                             
                         self.recorder.save_audio(self.input_list[index])
                         print("bura3")
@@ -222,23 +226,38 @@ class CradleGridLayout(GridLayout):
                         print("error in post process:"+str(err))
                         sleep(2)
                         
-                    
+             
+                        
+                result = None
                 for resp in self.resp_list:
-                
+                    
                     if max(resp["output_detection"], key=resp["output_detection"].get) == 'Crying baby':
                         
+                        if(result == None):
+                            result = resp
+                        
+                        else:
+                            if resp["output_detection"]["Crying baby"] > result["output_detection"]["Crying baby"]:
+                                result = resp
+                        
+                
+                if result == None:
+                    self.crying_status = False
+                    self.update_MessageRV("The baby is calm")
+                else:
+                    
+                    if(result["output_detection"]["Crying baby"]*100 >= self.listening_sensitivity):
                         self.crying_status = True
-                        
-                        self.tic = perf_counter()
-                        break
-                        
+                        self.update_MessageRV(result)
                     else:
                         self.crying_status = False
+                        self.update_MessageRV(result)
                     
-                print("crying_status"+str(self.crying_status))
+                print("crying_status:"+str(self.crying_status))
                 
             else:
                 self.crying_status = False
+                self.update_MessageRV("The baby is calm")
                 
             
             
@@ -343,8 +362,7 @@ class CradleGridLayout(GridLayout):
             sleep(self.sleep_time)
             
             
-        if self.speed_thrd.is_alive():
-            self.speed_thrd.terminate()
+
         
             
         
@@ -370,7 +388,55 @@ class CradleGridLayout(GridLayout):
         
         
         
+    def update_MessageRV(self, resp):
         
+        data = self.parent.parent.ids.messageRV.data
+        
+        if resp == 'The baby is calm':
+        
+            if data.__len__() == 0:
+                data.append({'id':self.btn_id, 'message':resp, 'text': datetime.now().strftime('%H:%M')+": "+resp, 'halign':"left" })
+                self.btn_id += 1
+                return
+            
+            if data[0]['message'] == resp:
+                return
+            
+            if data.__len__() >= 5:
+                data.pop()
+             
+            else:
+                data.insert(0, {'id':self.btn_id, 'message':resp, 'text': datetime.now().strftime('%H:%M')+": "+resp, 'halign':"left" })
+                self.btn_id += 1
+        else:
+            
+            message = self.resp_to_str(resp["outputs_classification"])
+            
+            if data.__len__() == 0:
+                data.append({'id':self.btn_id, 'message':message, 'text': datetime.now().strftime('%H:%M')+": "+message, 'halign':"left" })
+                self.btn_id += 1
+                return
+            
+            if data[0]['message'] == message:
+                return
+            
+            if data.__len__() >= 5:
+                data.pop()
+             
+            else:
+                data.insert(0, {'id':self.btn_id, 'message':message, 'text': datetime.now().strftime('%H:%M')+": "+message, 'halign':"left"})
+                self.btn_id += 1
 
-
-
+  
+    def resp_to_str(self, dct):
+        
+        text = ""
+        
+        for i in sorted(dct, key=dct.get, reverse=True):
+            
+            text += i + ": " + str(int(dct[i]*100)) + "%  " 
+            
+        return text
+        
+        
+        

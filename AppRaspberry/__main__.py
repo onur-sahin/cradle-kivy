@@ -15,6 +15,7 @@
 
 
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.app import App
 
 from ADC import ADC
@@ -45,6 +46,23 @@ class MainApp(App):
     def build(self):
         pass
 
+
+class MessageButton(Button):
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.message = ''
+        
+
+
+    def on_press(self):
+        
+        for idx, dct in enumerate(self.parent.parent.data):
+            
+            if dct["id"] == self.id:
+                self.parent.parent.data.pop(idx)
+                break
+    
 
 
 

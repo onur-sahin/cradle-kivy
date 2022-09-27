@@ -74,9 +74,10 @@ MainPageLayout:
         BoxLayout:
     
             Button:
-                id:message_box
+                id:message_btn
                 size_hint: 0.5, 1
                 text:"NO MESSAGE"
+                on_press:root.ids.cradleGridLayout.reset_msg_btn(message_btn)
                 #Label:
                 #    text: str(root.ids.cradleGridLayout.resp)
                 #    height: "50dp"

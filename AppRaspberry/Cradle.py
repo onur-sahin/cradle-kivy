@@ -27,6 +27,7 @@ class CradleGridLayout(GridLayout):
     count_for_rocking = 0
     
     sleep_time = 1
+    record_count = 2
     
     rocking_time = 0
     
@@ -59,10 +60,6 @@ class CradleGridLayout(GridLayout):
     
     
     resp = DictProperty({"baby_status":"The baby is calm."})
-    
-    input_list = [0,0,0]
-    
-    resp_list = [0,0,0]
     
 
     def on_press_btn_cradle(self, btn_cradle, btn_stop):
@@ -194,25 +191,30 @@ class CradleGridLayout(GridLayout):
             
             if self.sound_status == True:
                 
-                for i in range(3):
+                input_list = []
                 
-                    self.input_list[i] = self.recorder.stream_in.read(self.recorder.sample_rate*5, exception_on_overflow=False)
+                for i in range(self.record_count):
+                
+                    input_list.append(self.recorder.stream_in.read(self.recorder.sample_rate*5, exception_on_overflow=False))
                 
                 
                 index = 0
                 retry = 0
-                while index < 3:
+                resp_list = []
+                
+                while index < self.record_count:
                     
                     try:
                         
-                        self.resp_list[index] = requests.post( herokuURL,
-                                                               files=None,
-                                                               data=self.input_list[index]
-                                                             ).json()
+                        resp_list.append(requests.post( self.herokuURL,
+                                                        files=None,
+                                                        data=input_list[index]
+                                                      ).json()
+                                        )
                                             
-                        self.recorder.save_audio(self.input_list[index])
-                        print("bura3")
-                        print(self.resp_list[index])
+                        self.recorder.save_audio(input_list[index])
+                        
+                        print(resp_list[index])
                         
                         index += 1
                         retry = 0
@@ -229,7 +231,7 @@ class CradleGridLayout(GridLayout):
              
                         
                 result = None
-                for resp in self.resp_list:
+                for resp in resp_list:
                     
                     if max(resp["output_detection"], key=resp["output_detection"].get) == 'Crying baby':
                         
@@ -248,6 +250,7 @@ class CradleGridLayout(GridLayout):
                     
                     if(result["output_detection"]["Crying baby"]*100 >= self.listening_sensitivity):
                         self.crying_status = True
+                        self.update_message_btn("BABY IS CRYING!..")
                         self.update_MessageRV(result)
                     else:
                         self.crying_status = False
@@ -386,7 +389,13 @@ class CradleGridLayout(GridLayout):
         print("listened=", toc-tic)
         return False
         
+    def reset_msg_btn(self, message_btn):
+        message_btn.text = "NO MESSAGE"
+        message_btn.background_color = (1,1,1,1)
         
+    def update_message_btn(self, resp):
+        self.parent.parent.ids.message_btn.text = resp
+        self.parent.parent.ids.message_btn.background_color = (0.8, 0, 0, 0.8)
         
     def update_MessageRV(self, resp):
         

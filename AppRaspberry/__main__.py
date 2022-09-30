@@ -18,8 +18,12 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.app import App
 
+from time import sleep
+import threading
+
 from ADC import ADC
 from HallSensor import HallSensor
+
 
 from kivy.lang.builder import Builder
 
@@ -41,10 +45,15 @@ adc = ADC()
 hallSensor = HallSensor()
 
 
+
+
+
 class MainApp(App):
 
     def build(self):
         pass
+        
+    
 
 
 class MessageButton(Button):
@@ -67,5 +76,6 @@ class MessageButton(Button):
 
 
 if __name__ == '__main__':
-
+    
     MainApp().run()
+    

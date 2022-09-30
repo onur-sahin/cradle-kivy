@@ -1,6 +1,7 @@
 #:kivy 2.1.0
 
 <CradleGridLayout>:
+    id:cradleGridLayout
     
     cols : 1
     
@@ -19,7 +20,7 @@
         Button:
             id: btn_cradle
             text: 'CRADLE'
-            on_press: root.on_press_btn_cradle(btn_cradle, btn_stop)
+            on_press: root.on_press_btn_cradle()
             disabled: False
 
         Button:

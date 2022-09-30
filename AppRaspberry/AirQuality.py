@@ -26,14 +26,16 @@ from myTools import range_
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
-
+airQuality_ = [0]
 
 class AirQualityBoxLayout(FloatLayout):
 
     
     # airQuality        = StringProperty("waiting for calculation")
     
-    airQuality = NumericProperty()
+    airQuality = NumericProperty(0)
+    
+    
 
     warning = BooleanProperty(False)
     
@@ -78,7 +80,9 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.airQuality = self.getAirQuality()
+        airQuality_[0] = self.getAirQuality()
+        
+        self.airQuality = airQuality_[0]
         
         self.setColor()
         
@@ -139,6 +143,8 @@ class AirQualityBoxLayout(FloatLayout):
 
     
     def getAirQuality(self):
+        
+        
 
         self.rawValue = self.adc.getSensorValue( channel=0 )
 

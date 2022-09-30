@@ -12,12 +12,13 @@ from kivy.properties import BooleanProperty, ColorProperty, StringProperty
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
-
+humidity_ = [0]
 
 class HumidityBoxLayout(FloatLayout):
 
     humidity = NumericProperty(0.0)
-    temp     = NumericProperty()
+   
+    temp     = NumericProperty(0.0)
 
     warning  = BooleanProperty(False)
     warning_color = ColorProperty([1, 0, 0, 1])
@@ -59,8 +60,8 @@ class HumidityBoxLayout(FloatLayout):
         
         self.progbar.label = Label(text="{}%", font_size = self.progbar.widget_size*0.3 )
 
-        self.temp, self.humidity = self.dht11.getTempAndHumidity()
-        
+        self.temp, humidity_[0] = self.dht11.getTempAndHumidity()
+        self.humidity = humidity_[0]
         self.btn.size = self.size
         self.btn.pos = self.pos
         

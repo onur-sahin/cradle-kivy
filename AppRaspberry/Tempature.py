@@ -14,11 +14,13 @@ from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
 from LM35 import LM35
 
+tempature_ = [0]
 
 
 class TempatureBoxLayout(FloatLayout):
 
-    tempature = NumericProperty()
+    tempature = NumericProperty(0)
+    
     
     warning = BooleanProperty(False)
     fnt_size =  NumericProperty(10)
@@ -70,9 +72,11 @@ class TempatureBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        self.tempature = self.lm35_driver.getTempature()
+        tempature_[0] = int( self.lm35_driver.getTempature() )
         
-        self.tempature = int(self.tempature)
+        self.tempature = tempature_[0]
+        
+        
         
         self.setColor()
         

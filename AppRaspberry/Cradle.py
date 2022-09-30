@@ -17,6 +17,12 @@ from kivy.properties import DictProperty
 
 from time import perf_counter
 
+from Mqtt_Driver import Mqtt_Driver
+
+
+
+
+
 
 
 class CradleGridLayout(GridLayout):
@@ -49,10 +55,8 @@ class CradleGridLayout(GridLayout):
     
     speed_thrd = threading.Thread()
     
+    
     recorder = Recorder()
-    
-
-    
     
     cradle_auto_rocking_time = 30 # seconds
     
@@ -61,24 +65,50 @@ class CradleGridLayout(GridLayout):
     
     resp = DictProperty({"baby_status":"The baby is calm."})
     
-
-    def on_press_btn_cradle(self, btn_cradle, btn_stop):
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    
+        self.mqtt_driver = Mqtt_Driver()
         
-        btn_cradle.disabled = True
+        self.mqtt_sent_data_thrd = threading.Thread(target=self.mqtt_driver.send_data)
+
+        self.mqtt_sent_data_thrd.start()
+        
+        
+        self.mqtt_driver.client.subscribe("mobil/#", qos=0)
+        
+        self.mqtt_driver.client.message_callback_add("mobil/btn_cradle", self.on_press_btn_cradle_mqtt)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_stop", self.on_press_btn_stop_mqtt)
+        
+        self.mqtt_get_data_thrd = threading.Thread(target=self.mqtt_driver.client.loop_forever)
+        self.mqtt_get_data_thrd.start()
+    
+    
+    def on_press_btn_cradle_mqtt(self, client, userdata, msg):
+        self.on_press_btn_cradle()
+
+    def on_press_btn_cradle(self):
+        
+        self.ids.btn_cradle.disabled = True
         self.start_cradle(self.motor_speed)
-        btn_stop.disabled = False
+        self.ids.btn_stop.disabled = False
         
     def start_cradle(self, speed):
         self.motor_control.motor_start(speed)
         
         
-    def on_press_btn_stop(self, btn_cradle, btn_stop):
+    def on_press_btn_stop_mqtt(self, client, userdata, msg):
+        self.on_press_btn_stop()
+        
+        
+    def on_press_btn_stop(self):
 
-        btn_stop.disabled = True
+        self.ids.btn_stop.disabled = True
         
         self.stop_cradle()
         
-        btn_cradle.disabled = False
+        self.ids.btn_cradle.disabled = False
         
         
     def stop_cradle(self):
@@ -446,6 +476,11 @@ class CradleGridLayout(GridLayout):
             text += i + ": " + str(int(dct[i]*100)) + "%  " 
             
         return text
+        
+        
+        
+    
+        
         
         
         

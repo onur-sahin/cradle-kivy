@@ -1,6 +1,9 @@
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.button import Button
 from pygame import mixer
 import os
 from kivy.properties import Clock
@@ -11,24 +14,30 @@ from kivy.properties import ListProperty
 from kivy.properties import StringProperty
 import threading
 import os
+from time import sleep
 from kivy.uix.popup import Popup
+
+from Cradle import device
 
 
 class LullabyWidget(BoxLayout):
 
     is_paused = False
     is_started = False
+    
 
     always_repeat_current_music = BooleanProperty(False)
     random_play_music = BooleanProperty(False)
     repeat_playlist = BooleanProperty(True)
-    lullaby_volume = NumericProperty(0.5)
+    lullaby_volume = NumericProperty(50)
+    last_sent_volume = 50
     
     auto_play_status = BooleanProperty(False)
 
 
-    music_directory = StringProperty("/")
+    music_directory = StringProperty("")
     filePath = StringProperty("")
+    last_directory = "/home/pi/Desktop/"
 
     listofsongs = ListProperty([])
     formattedlist = ListProperty([])
@@ -54,12 +63,44 @@ class LullabyWidget(BoxLayout):
 
         else:
             pass
+            
+    def update_musics(self):
+
+        if not os.path.isfile("./music_path.txt"):
+            print(123)
+            return False
+            
+        else:
+            print(123)
+            
+            file = open("./music_path.txt", 'r')
+            
+            path = file.readline()
+            
+            file.close()
+            
+            if os.path.isfile(path):
+                self.load(os.path.dirname(path), [path])
+            else:
+                self.load(path, [])
+                
+            print(124)
+                
+            return True
+                
 
     def play(self):
-        
+    
         if(self.listofsongs.__len__() == 0):
-            self.show_load()
+            if not  self.update_musics():
+                self.show_load()
+                
+                
+        if(self.listofsongs.__len__() == 0):
             return
+                
+            
+        
             
     
         if( self.is_paused == False and self.is_started == False):
@@ -95,12 +136,12 @@ class LullabyWidget(BoxLayout):
 
 
 
-    def replay(self):
+    def replay(self, *args):
         mixer.music.rewind()
 
 
 
-    def next(self):
+    def next(self, *args):
 
         self.stop()
 
@@ -113,7 +154,7 @@ class LullabyWidget(BoxLayout):
             self.play()
             
 
-    def back(self):
+    def back(self, *args):
 
         if(self.listofsongs.__len__() == 0):
             return
@@ -134,19 +175,27 @@ class LullabyWidget(BoxLayout):
 
 
     def dismiss_popup(self):
+        
         self._popup.dismiss()
-
+        self.popup_wait_flag = True
+        
+        
+        
 
     def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup, path=self.music_directory)
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup, path=self.last_directory)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.5, 0.5))
         self._popup.open()
+        
+        
 
     
     
 
     def load(self, path, filename):
+        # filename : selected files or directories as a list - []
+        # path     : directory of selected files or directories as a string -""
         
         print(type(path))
         print(path)
@@ -157,18 +206,26 @@ class LullabyWidget(BoxLayout):
 
         selected_music = None
         
+        if filename.__len__() != 0:
         
-        if(os.path.isdir(filename[0])):
-            self.music_directory = filename[0]
-            
+            if(os.path.isdir(filename[0])):
+                self.music_directory = filename[0]
+                
+                
+                    
+            else:
+                self.music_directory = path
+                selected_music = os.path.basename(filename[0])
                 
         else:
+    
             self.music_directory = path
-            selected_music = os.path.basename(filename[0])
-            print(selected_music)
+            
+            
+        file = open("./music_path.txt", "w")
+        file.write(self.music_directory)
+        file.close()
      
-
-        # os.chdir(self.music_directory)
 
         counter = 0
 
@@ -193,30 +250,96 @@ class LullabyWidget(BoxLayout):
             self.formattedlist.append(file)
             #formattedlist.append(file + "\n")
             
+        if self.listofsongs.__len__() == 0:
+            self.showPopup(title="Failure", text="There Is No Music!")
+            return False
+            
         if self.is_started == True:
             self.stop()
             self.play()
             
     
-                
-                
+            
+            
+    
+    def showPopup(self, title="No Title", text="No Text"):
+          
+        layout = GridLayout(cols = 1, padding = 10)
+  
+        popupLabel = Label(text = text)
+        closeButton = Button(text = "OK")
+  
+        layout.add_widget(popupLabel)
+        layout.add_widget(closeButton)       
+  
+        # Instantiate the modal popup and display
+        popup = Popup(title = title,
+                      content = layout,
+                      size_hint =(None, None), size =(200, 200))  
+        popup.open()   
+  
+        # Attach close button press with popup.dismiss action
+        closeButton.bind(on_press = popup.dismiss)              
+
+
+
             
 
 
-    def on_touch_music_volume_slider(self, self_slider):
-        self.lullaby_volume = self_slider.value
+    def on_touch_music_volume_slider(self, *args):
+        
+        if len(args) == 0:
+            self.lullaby_volume = self.ids.slider_sound.value
+            
+            if abs(self.lullaby_volume - self.last_sent_volume) > 5:
+                
+                self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/slider_volume",
+                                                                                   payload=str(self.lullaby_volume),
+                                                                                   qos=0,
+                                                                                   retain=True)
+                self.last_sent_volume = self.lullaby_volume
+        else:            
+            self.lullaby_volume = float(args[2].payload.decode())
+            self.last_sent_volume = self.lullaby_volume
+            
+    
         mixer.music.set_volume(  float(self.lullaby_volume)/100  )
-        pass
-        
-        
         
     
+        
+
             
-    def auto_play(self, btn_auto_play):
-        if btn_auto_play.state == 'down':
+    def auto_play(self):
+        
+        if self.ids.btn_auto_play.state == 'down':
             
             if(self.listofsongs.__len__() == 0):
-                self.show_load()
+                
+                if not  self.update_musics():
+                    
+                    if device[0] == 'raspberry':
+                        print("raspknea")
+                        self.ids.btn_auto_play.state = 'normal'
+                        self.show_load()
+                        
+                        return
+                        
+                        
+                    elif device[0] == 'mobil':
+                        print("mobil")
+                        device[0]='raspberyy'
+                        self.ids.btn_auto_play.state = 'normal'
+                        self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/warning_popup",
+                                                                           payload="No Selected Music In Raspberry",
+                                                                           qos=0,
+                                                                           retain=False)
+                        return False
+                        
+                    
+                
+                    
+            if(self.listofsongs.__len__() == 0):
+                return False
             
             if(not self.parent.parent.ids.cradleGridLayout.listen_thread.is_alive()):
             
@@ -225,11 +348,16 @@ class LullabyWidget(BoxLayout):
                                                             self.parent.parent.ids.cradleGridLayout.ids.auto_stop_cradle,
                                                             self.parent.parent.ids.cradleGridLayout.ids.btn_cradle,
                                                             self.parent.parent.ids.cradleGridLayout.ids.btn_stop,
-                                                            btn_auto_play)
+                                                            self.ids.btn_auto_play)
                                                      )
                 self.parent.parent.ids.cradleGridLayout.listen_thread.start()
             
                 print("def on_press_btn_auto_stop(self, self_btn):")
+                
+        # self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/btn_auto_play_state",
+                                                                           # payload=self.ids.btn_auto_play.state,
+                                                                           # qos=0,
+                                                                           # retain=True)
             
         
 

@@ -30,7 +30,7 @@
     ToggleButton:
         id:btn_auto_play
         text:"auto\nplay"
-        on_state:root.auto_play(btn_auto_play)
+        on_state:root.auto_play()
         
     Image:
         source: "./Images/sound_icon.png"
@@ -43,8 +43,8 @@
         id: slider_sound
         min: 0
         max: 100
-        value: 50
-        on_touch_move: root.on_touch_music_volume_slider(self)
+        value: root.lullaby_volume
+        on_touch_move: root.on_touch_music_volume_slider()
    
 
 

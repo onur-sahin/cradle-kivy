@@ -20,7 +20,7 @@ from time import perf_counter
 from Mqtt_Driver import Mqtt_Driver
 
 
-
+device = ["raspberry"]
 
 
 
@@ -44,7 +44,9 @@ class CradleGridLayout(GridLayout):
 
     motor_control = Motor_Control()
     
-    motor_speed = NumericProperty(25)
+    motor_speed = NumericProperty(25.0)
+    
+    last_sent_motor_speed = 25
     
     listening_sensitivity = NumericProperty(75.0)
     
@@ -78,17 +80,123 @@ class CradleGridLayout(GridLayout):
         
         self.mqtt_driver.client.subscribe("mobil/#", qos=0)
         
-        self.mqtt_driver.client.message_callback_add("mobil/btn_cradle", self.on_press_btn_cradle_mqtt)
-        self.mqtt_driver.client.message_callback_add("mobil/btn_stop", self.on_press_btn_stop_mqtt)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_cradle", self.on_press_btn_cradle)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_stop", self.on_press_btn_stop)
+        
+        self.mqtt_driver.client.message_callback_add("mobil/btn_play", self.btn_play)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_stop_music", self.btn_stop_music)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_replay", self.btn_replay)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_next", self.btn_next)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_back", self.btn_back)
+        
+        self.mqtt_driver.client.message_callback_add("mobil/btn_auto_play", self.btn_auto_play)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_auto_start", self.btn_auto_start)
+        self.mqtt_driver.client.message_callback_add("mobil/btn_auto_stop", self.btn_auto_stop)
+        
+        self.mqtt_driver.client.message_callback_add("mobil/slider_speed", self.on_touch_move_speed_slider)
+        self.mqtt_driver.client.message_callback_add("mobil/slider_volume", self.update_volume)
         
         self.mqtt_get_data_thrd = threading.Thread(target=self.mqtt_driver.client.loop_forever)
         self.mqtt_get_data_thrd.start()
+        
     
+        self.mqtt_driver.client.publish("raspberry/btn_auto_play_state", payload="normal", qos=0, retain=True)
+        self.mqtt_driver.client.publish("raspberry/btn_auto_start_state", payload="normal", qos=0, retain=True)
+        self.mqtt_driver.client.publish("raspberry/btn_auto_stop_state", payload="normal", qos=0, retain=True)
+        self.mqtt_driver.client.publish("raspberry/slider_speed", payload=str(self.motor_speed), qos=0, retain=True)
     
-    def on_press_btn_cradle_mqtt(self, client, userdata, msg):
-        self.on_press_btn_cradle()
+    def update_volume(self, *args):
+        self.parent.parent.ids.lullabyWidget.on_touch_music_volume_slider(*args)
+    
+    def btn_play(self, *args):
+        self.parent.parent.ids.lullabyWidget.play()
+        
+    def btn_stop_music(self, *args):
+        self.parent.parent.ids.lullabyWidget.stop()
+        
+    def btn_replay(self, *args):
+        self.parent.parent.ids.lullabyWidget.replay()
+        
+    def btn_next(self, *args):
+        self.parent.parent.ids.lullabyWidget.next()
+    
+    def btn_back(self, *args):
+        self.parent.parent.ids.lullabyWidget.back()
+        
+    def btn_auto_play(self, *args):
+        
+        if args[2].payload.decode() == 'down':
+        
+            if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state != 'down':
+                
+                device[0] = "mobil"
+                result = self.parent.parent.ids.lullabyWidget.auto_play()
+                
+                if result == False:
+                    self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state = 'normal'
+                    self.mqtt_driver.client.publish("raspberry/btn_auto_play_state", payload="normal", qos=0, retain=True)
+                    
+                else:
+                    
+                    self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state = 'down'
+                
+                    self.mqtt_driver.client.publish("raspberry/btn_auto_play_state", payload="down", qos=0, retain=True)
+        
+        elif args[2].payload.decode() == 'normal':
+        
+            if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state != 'normal':
+                self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state = 'normal'
+                
+            
+            self.mqtt_driver.client.publish("raspberry/btn_auto_play_state", payload="normal", qos=0, retain=True)
+        
+                
+                
+    def btn_auto_start(self, *args):
+        
+        
+        if args[2].payload.decode() == 'down':
+        
+            if self.ids.auto_start_cradle.state != 'down':
+                self.ids.auto_start_cradle.state = 'down'
+                self.on_state_btn_auto_start()
+            
+            self.mqtt_driver.client.publish("raspberry/btn_auto_start_state", payload="down", qos=0, retain=True)
+        
+        elif args[2].payload.decode() == 'normal':
+        
+            if self.ids.auto_start_cradle.state != 'normal':
+                self.ids.auto_start_cradle.state = 'normal'
+                
+            
+            self.mqtt_driver.client.publish("raspberry/btn_auto_start_state", payload="normal", qos=0, retain=True)
+        
+        
+    def btn_auto_stop(self, *args):
+        
+        if args[2].payload.decode() == 'down':
+        
+            if self.ids.auto_stop_cradle.state != 'down':
+                self.ids.auto_stop_cradle.state = 'down'
+                self.on_state_btn_auto_stop()
+            
+            self.mqtt_driver.client.publish("raspberry/btn_auto_stop_state", payload="down", qos=0, retain=True)
+        
+        elif args[2].payload.decode() == 'normal':
+        
+            if self.ids.auto_stop_cradle.state != 'normal':
+                self.ids.auto_stop_cradle.state = 'normal'
+                
+            
+            self.mqtt_driver.client.publish("raspberry/btn_auto_stop_state", payload="normal", qos=0, retain=True)
 
-    def on_press_btn_cradle(self):
+        
+    
+    
+
+    
+
+    def on_press_btn_cradle(self, *args):
         
         self.ids.btn_cradle.disabled = True
         self.start_cradle(self.motor_speed)
@@ -98,11 +206,7 @@ class CradleGridLayout(GridLayout):
         self.motor_control.motor_start(speed)
         
         
-    def on_press_btn_stop_mqtt(self, client, userdata, msg):
-        self.on_press_btn_stop()
-        
-        
-    def on_press_btn_stop(self):
+    def on_press_btn_stop(self, *args):
 
         self.ids.btn_stop.disabled = True
         
@@ -133,21 +237,37 @@ class CradleGridLayout(GridLayout):
                 
             
 
-    def on_touch_move_speed_slider(self, self_slider):
-        self.motor_speed = self_slider.value
+    def on_touch_move_speed_slider(self, *args):
+        
+        if len(args) == 0:
+            self.motor_speed = self.ids.slider_speed.value
+            
+            if abs(self.motor_speed - self.last_sent_motor_speed) > 5:
+                
+                self.mqtt_driver.client.publish("raspberry/slider_speed", payload=str(self.motor_speed), qos=0, retain=True)
+                self.last_sent_motor_speed = self.motor_speed
+        else:
+            
+            self.motor_speed = float(args[2].payload.decode())
+            self.last_sent_motor_speed = self.motor_speed
+            
+            
         if self.motor_control.motor_status == True:
             self.motor_control.set_speed(self.motor_speed)
-        
-        
-    def on_state_btn_auto_start(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
+            
+            
+            
+            
+            
+    def on_state_btn_auto_start(self):
         
         if(not self.listen_thread.is_alive()):
         
             self.listen_thread = threading.Thread(target=self.listen_baby,
-                                                  args=(auto_start_cradle, 
-                                                        auto_stop_cradle,
-                                                        btn_cradle,
-                                                        btn_stop,
+                                                  args=(self.ids.auto_start_cradle, 
+                                                        self.ids.auto_stop_cradle,
+                                                        self.ids.btn_cradle,
+                                                        self.ids.btn_stop,
                                                         self.parent.parent.ids.lullabyWidget.ids.btn_auto_play) 
                                                  )
             
@@ -155,23 +275,34 @@ class CradleGridLayout(GridLayout):
             print("def on_press_btn_auto_start(self, auto_start_cradle, auto_stop_cradle):")
         
         
+          
+        self.mqtt_driver.client.publish("raspberry/btn_auto_start_state",
+                                        payload=self.ids.auto_start_cradle.state,
+                                        qos=0,
+                                        retain=True)
         
         
         
-    def on_state_btn_auto_stop(self, auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop):
+        
+    def on_state_btn_auto_stop(self):
         
         if(not self.listen_thread.is_alive()):
         
             self.listen_thread = threading.Thread(target=self.listen_baby,
-                                                  args=(auto_start_cradle,
-                                                        auto_stop_cradle,
-                                                        btn_cradle,
-                                                        btn_stop,
+                                                  args=(self.ids.auto_start_cradle,
+                                                        self.ids.auto_stop_cradle,
+                                                        self.ids.btn_cradle,
+                                                        self.ids.btn_stop,
                                                         self.parent.parent.ids.lullabyWidget.ids.btn_auto_play)
                                                  )
             self.listen_thread.start()
         
-            print("def on_press_btn_auto_stop(self, self_btn):")
+        print("def on_press_btn_auto_stop(self, self_btn):")
+            
+        self.mqtt_driver.client.publish("raspberry/btn_auto_stop_state",
+                                        payload=self.ids.auto_stop_cradle.state,
+                                        qos=0,
+                                        retain=True)
             
 
     def set_motor_speed(self):

@@ -77,17 +77,17 @@ class Mqtt_Driver:
     
     def send_airQuality(self):
         global airQuality
-        self.client.publish("raspberry/airQuality", payload=str(airQuality_[0]), qos=0)
+        self.client.publish("raspberry/airQuality", payload=str(airQuality_[0]), qos=0, retain=True)
         self.last_sent_airQuality = airQuality_[0]
         
     def send_tempature(self):
         
-        self.client.publish("raspberry/tempature", payload=str(tempature_[0]), qos=0)
+        self.client.publish("raspberry/tempature", payload=str(tempature_[0]), qos=0, retain=True)
         self.last_sent_tempature = tempature_[0]
         
     def send_humidity(self):
         
-        self.client.publish("raspberry/humidity", payload=str(humidity_[0]), qos=0)
+        self.client.publish("raspberry/humidity", payload=str(humidity_[0]), qos=0, retain=True)
         self.last_sent_humidity = humidity_[0]
         
     def send_data(self):

@@ -36,10 +36,10 @@
             
         Slider:
             id: slider_speed
-            min: 0
+            min: 25
             max: 100
             value: root.motor_speed
-            on_touch_move: root.on_touch_move_speed_slider(self)
+            on_touch_move: root.on_touch_move_speed_slider()
             
 
     BoxLayout:
@@ -48,12 +48,12 @@
         ToggleButton:
             id: auto_start_cradle
             text: "AUTO START CRADLE\n             " + "ON" if self.state=="down" else  "AUTO START CRADLE\n             " + "OFF"
-            on_state: root.on_state_btn_auto_start(auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop)
+            on_state: root.on_state_btn_auto_start()
         
         ToggleButton:
             id: auto_stop_cradle
             text: "AUTO STOP CRADLE\n              " +  "ON" if self.state=="down" else "AUTO STOP CRADLE\n              " + "OFF"
-            on_state: root.on_state_btn_auto_stop(auto_start_cradle, auto_stop_cradle, btn_cradle, btn_stop)
+            on_state: root.on_state_btn_auto_stop()
 
 
 

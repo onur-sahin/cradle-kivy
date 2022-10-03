@@ -1,3 +1,6 @@
 [submodule "AppCradleHeroku"]
 	path = AppCradleHeroku
 	url = https://github.com/onur-sahin/AppCradleHeroku.git
+[submodule "AppCradle_mobil"]
+	path = AppCradle_mobil
+	url = https://github.com/onur-sahin/AppCradle_mobil.git

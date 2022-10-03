@@ -45,7 +45,7 @@ class Mqtt_Driver:
         # set username and password
         self.client.username_pw_set("ahmedmehmed", "235711Int1")
         # connect to HiveMQ Cloud on port 8883 (default for MQTT)
-        self.client.connect("4304a26c98074e7b9023d1d011705d7d.s1.eu.hivemq.cloud", 8883)
+        self.client.connect("e78f75ef51644ecda4a26c0c6d5f9b13.s1.eu.hivemq.cloud", 8883)
 
         # setting callbacks, use separate functions like above for better visibility
         self.client.on_subscribe = self.on_subscribe

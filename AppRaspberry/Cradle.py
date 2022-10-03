@@ -5,7 +5,7 @@ from kivy.properties import NumericProperty
 
 from Motor_Control import Motor_Control
 from __main__ import hallSensor
-
+import json
 from time import sleep
 from datetime import datetime
 import time
@@ -20,7 +20,6 @@ from time import perf_counter
 from Mqtt_Driver import Mqtt_Driver
 
 
-device = ["raspberry"]
 
 
 
@@ -129,7 +128,7 @@ class CradleGridLayout(GridLayout):
         
             if self.parent.parent.ids.lullabyWidget.ids.btn_auto_play.state != 'down':
                 
-                device[0] = "mobil"
+    
                 result = self.parent.parent.ids.lullabyWidget.auto_play()
                 
                 if result == False:
@@ -563,38 +562,52 @@ class CradleGridLayout(GridLayout):
         data = self.parent.parent.ids.messageRV.data
         
         if resp == 'The baby is calm':
+            
+            warning = { 'time':datetime.utcnow().strftime('%H:%M'), 'msg':'THE BABY IS CALM', 'sub_msg':resp }
         
-            if data.__len__() == 0:
-                data.append({'id':self.btn_id, 'message':resp, 'text': datetime.now().strftime('%H:%M')+": "+resp, 'halign':"left" })
+            if data.__len__() == 0:                
+               
+                data.append({'id':self.btn_id, 'text':warning['time']+": "+warning['sub_msg'], 'halign':"left" })
+                
+                self.mqtt_driver.client.publish("raspberry/warning", payload=json.dumps(warning), qos=0, retain=True)
+                
                 self.btn_id += 1
                 return
             
-            if data[0]['message'] == resp:
-                return
-            
-            if data.__len__() >= 5:
-                data.pop()
-             
             else:
-                data.insert(0, {'id':self.btn_id, 'message':resp, 'text': datetime.now().strftime('%H:%M')+": "+resp, 'halign':"left" })
+            
+                if data.__len__() >= 10:
+                    data.pop()
+                    
+                if data[0]['text'][7:] == resp:
+                    data.pop(0)
+                 
+            
+                data.insert(0, {'id':self.btn_id, 'text':warning['time']+": "+warning['sub_msg'], 'halign':"left" })
+                self.mqtt_driver.client.publish("raspberry/warning", payload=json.dumps(warning), qos=0, retain=True)
                 self.btn_id += 1
         else:
             
-            message = self.resp_to_str(resp["outputs_classification"])
+            warning = {'time'   : datetime.utcnow().strftime('%H:%M'),
+                       'msg'    : 'THE BABY IS CRYING',
+                       'sub_msg': self.resp_to_str(resp["outputs_classification"])
+                      }
             
             if data.__len__() == 0:
-                data.append({'id':self.btn_id, 'message':message, 'text': datetime.now().strftime('%H:%M')+": "+message, 'halign':"left" })
+                data.append({'id':self.btn_id, 'text': warning['time']+": "+warning['sub_msg'], 'halign':"left" })
+                self.mqtt_driver.client.publish("raspberry/warning", payload=json.dumps(warning), qos=0, retain=True)
                 self.btn_id += 1
                 return
             
-            if data[0]['message'] == message:
-                return
-            
-            if data.__len__() >= 5:
-                data.pop()
-             
             else:
-                data.insert(0, {'id':self.btn_id, 'message':message, 'text': datetime.now().strftime('%H:%M')+": "+message, 'halign':"left"})
+                if data.__len__() >= 10:
+                    data.pop()
+                    
+                if data[0]['text'][7:] == warning['sub_msg']:
+                    data.pop(0)
+                    
+                data.insert(0, {'id':self.btn_id, 'text': warning['time']+": "+warning['sub_msg'], 'halign':"left"})
+                self.mqtt_driver.client.publish("raspberry/warning", payload=json.dumps(warning), qos=0, retain=True)
                 self.btn_id += 1
 
   

@@ -17,7 +17,6 @@ import os
 from time import sleep
 from kivy.uix.popup import Popup
 
-from Cradle import device
 
 
 class LullabyWidget(BoxLayout):
@@ -316,29 +315,13 @@ class LullabyWidget(BoxLayout):
             if(self.listofsongs.__len__() == 0):
                 
                 if not  self.update_musics():
-                    
-                    if device[0] == 'raspberry':
-                        print("raspknea")
-                        self.ids.btn_auto_play.state = 'normal'
-                        self.show_load()
-                        
-                        return
-                        
-                        
-                    elif device[0] == 'mobil':
-                        print("mobil")
-                        device[0]='raspberyy'
-                        self.ids.btn_auto_play.state = 'normal'
-                        self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/warning_popup",
-                                                                           payload="No Selected Music In Raspberry",
-                                                                           qos=0,
-                                                                           retain=False)
-                        return False
-                        
-                    
+                    self.ids.btn_auto_play.state ='normal'
+                    self.show_load()
+                    return
                 
                     
             if(self.listofsongs.__len__() == 0):
+                self.ids.btn_auto_play.state = 'normal'
                 return False
             
             if(not self.parent.parent.ids.cradleGridLayout.listen_thread.is_alive()):
@@ -354,10 +337,10 @@ class LullabyWidget(BoxLayout):
             
                 print("def on_press_btn_auto_stop(self, self_btn):")
                 
-        # self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/btn_auto_play_state",
-                                                                           # payload=self.ids.btn_auto_play.state,
-                                                                           # qos=0,
-                                                                           # retain=True)
+        self.parent.parent.ids.cradleGridLayout.mqtt_driver.client.publish("raspberry/btn_auto_play_state",
+                                                                           payload=self.ids.btn_auto_play.state,
+                                                                           qos=0,
+                                                                           retain=True)
             
         
 

@@ -3,12 +3,15 @@
 
 #sudo pip3 install adafruit-circuitpython-mcp3xxx
 
-if __name__!="__main__":
-    from __main__ import adc
 
-else:
+
+if __name__=="__main__":
+
     from ADC import ADC
     from time import sleep
+    
+else:
+    from __main__ import mq135_driver
 
 
 
@@ -21,7 +24,7 @@ from kivy.properties import NumericProperty
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty, ColorProperty
 
 from time import sleep
-    
+
 from myTools import range_
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
@@ -45,7 +48,7 @@ class AirQualityBoxLayout(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.adc = adc
+        self.mq135_driver = mq135_driver
         
         rawValue = -1
 
@@ -80,7 +83,7 @@ class AirQualityBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        airQuality_[0] = self.getAirQuality()
+        airQuality_[0] = self.mq135_driver.getAirQuality()
         
         self.airQuality = airQuality_[0]
         
@@ -142,18 +145,7 @@ class AirQualityBoxLayout(FloatLayout):
 
 
     
-    def getAirQuality(self):
-        
-        
 
-        self.rawValue = self.adc.getSensorValue( channel=0 )
-
-        return self.calculatePPm( self.rawValue ) 
-
-
-    def calculatePPm(self, rawValue):
-
-        return range_(rawValue, 0, 65472, 10, 1000)
 
 
 

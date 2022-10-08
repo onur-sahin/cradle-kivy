@@ -17,7 +17,7 @@ from kivy.properties import DictProperty
 
 from time import perf_counter
 
-from Mqtt_Driver import Mqtt_Driver
+from __main__ import mqtt_driver
 
 
 
@@ -70,11 +70,11 @@ class CradleGridLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
     
-        self.mqtt_driver = Mqtt_Driver()
+        self.mqtt_driver = mqtt_driver
         
-        self.mqtt_sent_data_thrd = threading.Thread(target=self.mqtt_driver.send_data)
+        # self.mqtt_sent_data_thrd = threading.Thread(target=self.mqtt_driver.send_data)
 
-        self.mqtt_sent_data_thrd.start()
+        # self.mqtt_sent_data_thrd.start()
         
         
         self.mqtt_driver.client.subscribe("mobil/#", qos=0)

@@ -23,7 +23,13 @@ from time import sleep
 import threading
 
 from ADC import ADC
+from LM35 import LM35
+from MQ135 import MQ135
+from DHT11 import DHT11
 from HallSensor import HallSensor
+from FlameSensor import FlameSensor
+from Mqtt_Driver import Mqtt_Driver
+from FlameSensor import FlameSensor
 
 
 from kivy.lang.builder import Builder
@@ -40,14 +46,15 @@ Builder.load_file("setting.kv")
 Builder.load_file("cradle.kv")
 Builder.load_file("air_quality.kv")
 Builder.load_file("humidity.kv")
-Builder.load_file("tempature.kv")
-
-adc = ADC()
-hallSensor = HallSensor()
+Builder.load_file("temperature.kv")
 
 
 
 
+
+
+
+print("#####$$$$$")
 
 class MainApp(App):
 
@@ -77,6 +84,24 @@ class MessageButton(Button):
 
 
 if __name__ == '__main__':
+    
+    adc = ADC()
+
+    lm35_driver  = LM35(adc)
+    mq135_driver = MQ135(adc)
+    dht11_driver = DHT11()
+
+    hallSensor = HallSensor()
+    flameSensor = FlameSensor()
+
+
+    mqtt_driver = Mqtt_Driver(lm35_driver,
+                              mq135_driver,
+                              dht11_driver,
+                              flameSensor)
+                              
+    mqtt_thrd = threading.Thread(target=mqtt_driver.send_data )
+    mqtt_thrd.start()
     
     MainApp().run()
     

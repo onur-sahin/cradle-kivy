@@ -5,7 +5,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 from kivy.properties import Clock
 
-from DHT11_driver import DHT11_driver
+from __main__ import dht11_driver
 
 from kivy.properties import NumericProperty
 from kivy.properties import BooleanProperty, ColorProperty, StringProperty
@@ -28,7 +28,7 @@ class HumidityBoxLayout(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.dht11 = DHT11_driver()
+        self.dht11_driver = dht11_driver
 
         Clock.schedule_interval(self.update, 2)
 
@@ -60,7 +60,7 @@ class HumidityBoxLayout(FloatLayout):
         
         self.progbar.label = Label(text="{}%", font_size = self.progbar.widget_size*0.3 )
 
-        self.temp, humidity_[0] = self.dht11.getTempAndHumidity()
+        self.temp, humidity_[0] = self.dht11_driver.getTempAndHumidity()
         self.humidity = humidity_[0]
         self.btn.size = self.size
         self.btn.pos = self.pos

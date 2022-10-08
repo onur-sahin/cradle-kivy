@@ -12,14 +12,15 @@ from kivy.metrics import dp
 
 from CircularProgressBar_Half.circular_progress_bar import CircularProgressBar
 
-from LM35 import LM35
 
-tempature_ = [0]
+from __main__ import lm35_driver
+
+temperature_ = [0]
 
 
-class TempatureBoxLayout(FloatLayout):
+class TemperatureBoxLayout(FloatLayout):
 
-    tempature = NumericProperty(0)
+    temperature = NumericProperty(0)
     
     
     warning = BooleanProperty(False)
@@ -34,7 +35,7 @@ class TempatureBoxLayout(FloatLayout):
         super().__init__(**kwargs)
         Clock.schedule_interval(self.update, 2)
 
-        self.lm35_driver = LM35()
+        self.lm35_driver = lm35_driver
 
         self.progbar = CircularProgressBar()
         self.progbar.cap_style = "round"
@@ -72,9 +73,9 @@ class TempatureBoxLayout(FloatLayout):
         self.btn.size = self.size
         self.btn.pos = self.pos
         
-        tempature_[0] = int( self.lm35_driver.getTempature() )
+        temperature_[0] = int( self.lm35_driver.getTemperature() )
         
-        self.tempature = tempature_[0]
+        self.temperature = temperature_[0]
         
         
         
@@ -86,7 +87,7 @@ class TempatureBoxLayout(FloatLayout):
         self.progbar.pos = self.center_x-self.progbar.widget_size/2, self.center_y-self.progbar.widget_size/2
         
 
-        self.progbar._value = self.tempature
+        self.progbar._value = self.temperature
         
         self.progbar._draw()
         
@@ -100,11 +101,11 @@ class TempatureBoxLayout(FloatLayout):
     def check_warning(self):
         
         
-        if self.tempature < 20:
+        if self.temperature < 20:
             self.warning = True
             
                     
-        elif self.tempature > 26:
+        elif self.temperature > 26:
             self.warning = True
            
             
@@ -114,7 +115,7 @@ class TempatureBoxLayout(FloatLayout):
 
     def setColor(self):
         
-        t = self.tempature
+        t = self.temperature
         
         if (t < 18 ):               #TOO COLD - BLUE
             

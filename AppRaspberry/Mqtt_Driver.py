@@ -19,19 +19,34 @@ import paho.mqtt.client as paho
 from paho import mqtt
 import threading
 from time import sleep
+from datetime import datetime, timedelta
 
-from AirQuality import airQuality_
-from Tempature import tempature_
-from Humidity import humidity_
+
+# from AirQuality import airQuality_
+# from Tempature import tempature_
+# from Humidity import humidity_
 
 class Mqtt_Driver:
     
-    def __init__(self):
-    
+    def __init__(self, lm35_driver, mq135_driver, dht11_driver, flameSensor):
         
-        self.last_sent_airQuality = 0
-        self.last_sent_tempature = 0
-        self.last_sent_humidity = 0
+        self.delta = timedelta(minutes=3)
+        
+        self.lm35_driver  = lm35_driver
+        self.mq135_driver = mq135_driver
+        self.dht11_driver = dht11_driver
+        self.flameSensor  = flameSensor
+        
+        self.airQuality          = 0
+        self.temperature         = 0
+        self.humidity            = 0
+        self.flame_status        = False
+        self.time_flameDetection = datetime.fromisoformat('2000-00-00 00:00:00.000')
+        
+        self.last_sent_airQuality          = -100
+        self.last_sent_temperature         = -273
+        self.last_sent_humidity            = -100
+        self.last_sent_time_flameDetection = datetime.fromisoformat('2000-00-00 00:00:00.000')
         
         
         # using MQTT version 5 here, for 3.1.1: MQTTv311, 3.1: MQTTv31
@@ -76,60 +91,91 @@ class Mqtt_Driver:
 
     
     def send_airQuality(self):
-        global airQuality
-        self.client.publish("raspberry/airQuality", payload=str(airQuality_[0]), qos=0, retain=True)
-        self.last_sent_airQuality = airQuality_[0]
         
-    def send_tempature(self):
+        try:
+            self.client.publish("raspberry/airQuality", payload=str(self.airQuality), qos=0, retain=True)
+            self.last_sent_airQuality = self.airQuality
         
-        self.client.publish("raspberry/tempature", payload=str(tempature_[0]), qos=0, retain=True)
-        self.last_sent_tempature = tempature_[0]
+        except BaseException as err:
+            print(err)
+            sleep(1)
         
+    def send_temperature(self):
+        
+        try:
+            self.client.publish("raspberry/tempature", payload=str(self.temperature), qos=0, retain=True)
+            self.last_sent_temperature = self.temperature
+            
+        except BaseException as err:
+            print(err)
+            sleep(1)
+            
     def send_humidity(self):
         
-        self.client.publish("raspberry/humidity", payload=str(humidity_[0]), qos=0, retain=True)
-        self.last_sent_humidity = humidity_[0]
+        try:
+            self.client.publish("raspberry/humidity", payload=str(self.humidity), qos=0, retain=True)
+            self.last_sent_humidity = self.humidity
+            
+        except BaseException as err:
+            print(err)
+            sleep(1)
+            
+            
+    def send_flameDetected(self):
+        
+        try:
+            self.client.publish("raspberry/flameDetected", payload=self.time_flameDetection.strftime('%H:%M'), qos=0, retain=True)
+            
+        except BaseException as err:
+            print(err)
+            sleep(1)
+        
         
     def send_data(self):
         
-        
-        t = 1
-        
-        sleep(1)
+        t = 2
         
         while True:
             
-            try:
-                    
-                if  abs(airQuality_[0] - self.last_sent_airQuality) >= 10:
+                
+                self.airQuality = self.mq135_driver.getAirQuality()
+        
+                if abs(self.airQuality - self.last_sent_airQuality) >= 10:
                     self.send_airQuality()
-                    sleep(t)
-                
-                if abs(tempature_[0] - self.last_sent_tempature) >= 1:
-                    self.send_tempature()
-                    sleep(t)
-                
-                if abs(humidity_[0] - self.last_sent_humidity) >= 1:
-                    self.send_humidity()
-                    sleep(t)
                     
-                sleep(10)
+                
+                self.temperature = self.lm35_driver.getTemperature()
+                
+                if abs(self.temperature - self.last_sent_temperature) >= 1:
+                    self.send_temperature()
+                    
+                
+                _, self.humidity = self.dht11_driver.getTempAndHumidity()
+
+                if abs(self.humidity - self.last_sent_humidity) >= 5:
+                    self.send_humidity()
+                    
+                    
+                sleep(t)
                 
                 
-            except BaseException as err:
-                print(err)
-                sleep(5)
-
-
-
-
-
-
-
-
-
-
-
+    def check_sensors(self):
+        
+        t = 0.5
+        
+        while True:
+            
+            self.flame_status = self.flameSensor.getFlameSensorState()
+            
+            
+            if self.flame_status == True:
+                
+                if self.time_flameDetection - self.last_sent_time_flameDetection > self.delta:
+                    
+                    self.time_flameDetection = datetime.utcnow()
+                    self.send_flameDetected()
+                    
+            sleep(t)
 
 
 if __name__=="__main__":

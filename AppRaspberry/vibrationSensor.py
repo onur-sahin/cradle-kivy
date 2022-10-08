@@ -4,10 +4,10 @@ import RPi.GPIO as gpio
 
 class FlameSensor:
     
-    flameSensorPin = 26
+    flameSensorPin = 14
     
     def __init__(self):
-    
+
 
         try:
     
@@ -15,20 +15,13 @@ class FlameSensor:
             gpio.setwarnings(False)
             gpio.setup( self.flameSensorPin, gpio.IN)
 
-        except BaseException as err:
-            print("flame Sensor Error! :" + str(err) )
-            
+        except:
+            pass
 
-    def getFlameSensorState(self):
-        
-        while:
-            try:
-                return gpio.input(self.flameSensorPin)
-        
-            except BaseException as err:
-                print("getFlamSensorState() Error! :" + str(err))
+    def flameSensorState(self):
+        return gpio.input(self.flameSensorPin)
 
-            sleep(2)
+
 
 
 
@@ -48,4 +41,4 @@ if __name__=="__main__":
             print("flame not detected")
             
             
-        sleep(2)
+        sleep(0.01)

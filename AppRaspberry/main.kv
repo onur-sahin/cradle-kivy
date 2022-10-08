@@ -5,12 +5,15 @@
 #:import setting Setting
 #:import air_quality AirQuality
 #:import humidity Humidity
-#:import tempature Tempature
+#:import temperature Temperature
 
 MainPageLayout:
 
 
-<MainPageLayout@PageLayout>:
+
+#<MainPageLayout@PageLayout>:
+
+<MainPageLayout@BoxLayout>:
 
     canvas.before:
         Color:
@@ -30,7 +33,7 @@ MainPageLayout:
             orientation: "horizontal"
             size_hint: 1, 0.3
             Label:
-                text: "TEMPATURE"
+                text: "TEMPERATURE"
             Label:
                 text: "AIR QUALITY"
             Label:
@@ -40,7 +43,7 @@ MainPageLayout:
         BoxLayout:
             orientation: 'horizontal'
             
-            TempatureBoxLayout:
+            TemperatureBoxLayout:
                 id: tempature_boxlayout
                 
             AirQualityBoxLayout:
@@ -108,7 +111,7 @@ MainPageLayout:
             Button:
                 text: "ABOUT"
 
-    SettingGridLayout:
+#    SettingGridLayout:
     
     
     

@@ -1,10 +1,19 @@
-import matplotlib.pyplot as plt
-# import librosa
-import soundfile
+import kivy
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
 
+class CameraBoxLayout(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        # camera = self.ids['camera']
+        # timestr = time.strftime("%Y%m%d_%H%M%S")
+        # camera.export_to_png("IMG_{}.png".format(timestr))
+        print("Captured")
 
-sig = soundfile.read("/home/pi/projects/cradle-kivy-geany/AppRaspberry/Records/2022Sep25-12.24.13.wav")
-
-plt.plot(sig[0])
-
-plt.show()
+class DenemeApp(App):
+  pass
+  
+if __name__ == "__main__":
+    app = DenemeApp()
+    app.run()

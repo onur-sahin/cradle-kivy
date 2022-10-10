@@ -66,11 +66,9 @@ class LullabyWidget(BoxLayout):
     def update_musics(self):
 
         if not os.path.isfile("./music_path.txt"):
-            print(123)
             return False
             
         else:
-            print(123)
             
             file = open("./music_path.txt", 'r')
             
@@ -83,7 +81,6 @@ class LullabyWidget(BoxLayout):
             else:
                 self.load(path, [])
                 
-            print(124)
                 
             return True
                 
@@ -193,13 +190,7 @@ class LullabyWidget(BoxLayout):
     
 
     def load(self, path, filename):
-        # filename : selected files or directories as a list - []
-        # path     : directory of selected files or directories as a string -""
         
-        print(type(path))
-        print(path)
-        print(type(filename))
-        print(filename)
         
         self.listofsongs.clear()
 
@@ -230,9 +221,9 @@ class LullabyWidget(BoxLayout):
 
         for file in os.listdir(self.music_directory):
             if file.endswith(".mp3"):
-                print('file is ',file)
+
                 songName = file.split('.')[0]
-                print('songName is ',songName)
+
                 self.realnames.append(songName)
                 
                 self.listofsongs.append(file)
@@ -241,7 +232,6 @@ class LullabyWidget(BoxLayout):
             if str(file) == str(selected_music):
                 self.index = self.listofsongs.__len__()-1
 
-            print(self.index)
 
             counter += 1
 
@@ -362,11 +352,9 @@ class LoadDialog(FloatLayout):
 
         for file in os.listdir(self.music_directory):
             if file.endswith(".mp3"):
-                print('file is ',file)
+
                 songName = file.split('.')[0]
-                #print('songName is ',songName)
                 self.realnames.append(songName)
-                
                 self.listofsongs.append(file)
 
         for file in self.realnames:

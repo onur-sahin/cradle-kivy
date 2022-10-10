@@ -13,40 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import time
 import paho.mqtt.client as paho
 from paho import mqtt
 import threading
 from time import sleep
-from datetime import datetime, timedelta
 
 
-# from AirQuality import airQuality_
-# from Tempature import tempature_
-# from Humidity import humidity_
 
 class Mqtt_Driver:
     
-    def __init__(self, lm35_driver, mq135_driver, dht11_driver, flameSensor):
+    def __init__(self, lm35_driver, mq135_driver, dht11_driver):
         
-        self.delta = timedelta(minutes=3)
         
         self.lm35_driver  = lm35_driver
         self.mq135_driver = mq135_driver
         self.dht11_driver = dht11_driver
-        self.flameSensor  = flameSensor
         
         self.airQuality          = 0
         self.temperature         = 0
         self.humidity            = 0
-        self.flame_status        = False
-        self.time_flameDetection = datetime.fromisoformat('2000-00-00 00:00:00.000')
+        
         
         self.last_sent_airQuality          = -100
         self.last_sent_temperature         = -273
         self.last_sent_humidity            = -100
-        self.last_sent_time_flameDetection = datetime.fromisoformat('2000-00-00 00:00:00.000')
+        
         
         
         # using MQTT version 5 here, for 3.1.1: MQTTv311, 3.1: MQTTv31
@@ -121,10 +113,11 @@ class Mqtt_Driver:
             sleep(1)
             
             
-    def send_flameDetected(self):
+    def send_flameDetected(self, time_flameDetection):
         
         try:
-            self.client.publish("raspberry/flameDetected", payload=self.time_flameDetection.strftime('%H:%M'), qos=0, retain=True)
+            self.client.publish("raspberry/flameDetected", payload=time_flameDetection.strftime('%H:%M'), qos=0, retain=True)
+            
             
         except BaseException as err:
             print(err)
@@ -159,23 +152,7 @@ class Mqtt_Driver:
                 sleep(t)
                 
                 
-    def check_sensors(self):
-        
-        t = 0.5
-        
-        while True:
-            
-            self.flame_status = self.flameSensor.getFlameSensorState()
-            
-            
-            if self.flame_status == True:
-                
-                if self.time_flameDetection - self.last_sent_time_flameDetection > self.delta:
-                    
-                    self.time_flameDetection = datetime.utcnow()
-                    self.send_flameDetected()
-                    
-            sleep(t)
+
 
 
 if __name__=="__main__":

@@ -6,8 +6,10 @@
     cols : 1
     
     BoxLayout:
-
+        size_hint: 1, 0.5
         orientation: 'horizontal'
+        spacing: 2
+        padding: 2
 
         canvas.before:
             Color:
@@ -43,6 +45,9 @@
             
 
     BoxLayout:
+        spacing:2
+        padding:2
+        size_hint: 1, 0.5
         orientation: 'horizontal'
         
         ToggleButton:
@@ -58,7 +63,7 @@
 
 
     BoxLayout:
-                
+        size_hint: 1, 0.5
                 
         BoxLayout:
             orientation:"vertical"
@@ -93,6 +98,7 @@
                     
         BoxLayout:
             orientation:"vertical"
+            padding: 2
             canvas.before:
                 Color:
                     rgba: 0.5, 0.5, 0.5, 0.8

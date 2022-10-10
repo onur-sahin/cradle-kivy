@@ -51,16 +51,11 @@ Builder.load_file("temperature.kv")
 
 
 
-
-
-
-print("#####$$$$$")
-
 class MainApp(App):
 
     def build(self):
         pass
-        
+            
     
 
 
@@ -84,7 +79,6 @@ class MessageButton(Button):
 
 
 if __name__ == '__main__':
-    
     adc = ADC()
 
     lm35_driver  = LM35(adc)
@@ -98,10 +92,12 @@ if __name__ == '__main__':
     mqtt_driver = Mqtt_Driver(lm35_driver,
                               mq135_driver,
                               dht11_driver,
-                              flameSensor)
+                              )
                               
-    mqtt_thrd = threading.Thread(target=mqtt_driver.send_data )
-    mqtt_thrd.start()
+    mqtt_send_data_thrd = threading.Thread(target=mqtt_driver.send_data )
+    mqtt_send_data_thrd.start()
+    
+
     
     MainApp().run()
     

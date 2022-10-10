@@ -18,15 +18,16 @@ MainPageLayout:
     canvas.before:
         Color:
             rgba: 0.2, 0.4, 0.5, 1
+    
         Rectangle:
-            # self here refers to the widget i.e FloatLayout
             pos: self.pos
             size: self.size
     
     GridLayout:
         id:MainGridLayout
-        
         cols :1
+        #padding: 2
+        spacing:2
         
         BoxLayout:
             
@@ -42,6 +43,7 @@ MainPageLayout:
         
         BoxLayout:
             orientation: 'horizontal'
+            size_hint: 1, 1.2
             
             TemperatureBoxLayout:
                 id: tempature_boxlayout
@@ -55,6 +57,7 @@ MainPageLayout:
         BoxLayout:
             orientation: "horizontal"
             size_hint: 1, 0.2
+        
             
             BackgroundLabel:
                 text: tempature_boxlayout.warning_label
@@ -76,15 +79,65 @@ MainPageLayout:
                 
 
         BoxLayout:
-    
-            Button:
-                id:message_btn
+            id:messages_box
+            size_hint: 1, 1.2
+            padding: 2
+
+            BoxLayout:
+                
                 size_hint: 0.5, 1
-                text:"NO MESSAGE"
-                on_press:root.ids.cradleGridLayout.reset_msg_btn(message_btn)
-                #Label:
-                #    text: str(root.ids.cradleGridLayout.resp)
-                #    height: "50dp"
+                orientation:"vertical"
+                spacing: 2
+                
+                Button:
+                    id:message_btn
+                    valign: "center"
+                    halign: "left"
+                    text:""
+                    text_size: self.size
+                    on_press:root.ids.cradleGridLayout.reset_msg_btn(self, "message_btn")
+                    Image:
+                        source:"./Images/baby_smile.png"
+                        x:message_btn.size[0]*0.35
+                        y:self.parent.pos[1]
+                        size:message_btn.size
+                        
+                        
+                        
+                Button:
+                    id:message_btn_vibration
+                    text:""
+                    valign: "center"
+                    halign: "left"
+                    text_size: self.size
+                    on_press:root.ids.cradleGridLayout.reset_msg_btn(self, "message_btn_vibration")
+                    Image:
+                        source:"./Images/cradle.png"
+                        x:message_btn_vibration.size[0]*0.35
+                        y:self.parent.pos[1]
+                        size:message_btn_vibration.size
+                        
+                        
+                Button:
+                        
+                    id:message_btn_flame
+                    text:""
+                    valign: "center"
+                    halign: "left"
+                    text_size: self.size
+                    on_press:root.ids.cradleGridLayout.reset_msg_btn(self, "message_btn_vibration")
+                    Image:
+                        source:"./Images/flame.png"
+                        x:message_btn_flame.size[0]*0.35
+                        y:self.parent.pos[1]
+                        size:message_btn_flame.size
+                    
+                    
+    
+                
+                
+                    
+                    
             BoxLayout:
                 orientation:"vertical"
                 Label:
@@ -103,13 +156,13 @@ MainPageLayout:
         CradleGridLayout:
             id:cradleGridLayout
             size_hint: 1, 2
-            
-                
+              
                 
         BoxLayout:
-            size_hint: 1, 0.5
+            size_hint: 1, 0.2
             Button:
                 text: "ABOUT"
+                
 
 #    SettingGridLayout:
     

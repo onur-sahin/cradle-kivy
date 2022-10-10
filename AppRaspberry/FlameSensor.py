@@ -21,7 +21,7 @@ class FlameSensor:
 
     def getFlameSensorState(self):
         
-        while:
+        while True:
             try:
                 return gpio.input(self.flameSensorPin)
         

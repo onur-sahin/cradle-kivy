@@ -7,7 +7,7 @@ from Motor_Control import Motor_Control
 from __main__ import hallSensor
 import json
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import requests
 from SoundSensor import SoundSensor
@@ -18,9 +18,7 @@ from kivy.properties import DictProperty
 from time import perf_counter
 
 from __main__ import mqtt_driver
-
-
-
+from __main__ import flameSensor
 
 
 
@@ -69,12 +67,16 @@ class CradleGridLayout(GridLayout):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-    
-        self.mqtt_driver = mqtt_driver
         
-        # self.mqtt_sent_data_thrd = threading.Thread(target=self.mqtt_driver.send_data)
-
-        # self.mqtt_sent_data_thrd.start()
+        
+        self.flameSensor  = flameSensor
+        self.delta = timedelta(minutes=3)
+        self.flame_status        = True # True means 'FLAME NOT DETECTED'
+        self.time_flameDetection = datetime.fromisoformat('2000-01-01 00:00:00.000')
+        self.last_sent_time_flameDetection = datetime.fromisoformat('2000-01-01 00:00:00.000')
+        
+        
+        self.mqtt_driver = mqtt_driver
         
         
         self.mqtt_driver.client.subscribe("mobil/#", qos=0)
@@ -97,6 +99,10 @@ class CradleGridLayout(GridLayout):
         
         self.mqtt_get_data_thrd = threading.Thread(target=self.mqtt_driver.client.loop_forever)
         self.mqtt_get_data_thrd.start()
+        
+        mqtt_check_sensors_thrd = threading.Thread(target=self.check_sensors )
+        mqtt_check_sensors_thrd.start()
+        
         
     
         self.mqtt_driver.client.publish("raspberry/btn_auto_play_state", payload="normal", qos=0, retain=True)
@@ -549,14 +555,47 @@ class CradleGridLayout(GridLayout):
         print("listened=", toc-tic)
         return False
         
-    def reset_msg_btn(self, message_btn):
-        message_btn.text = "NO MESSAGE"
-        message_btn.background_color = (1,1,1,1)
+    def reset_msg_btn(self, message_btn, btn_id):
+        if btn_id == "message_btn":
+            message_btn.text = ""
+            
+        elif btn_id == "message_btn_flame":
+            message_btn.text = ""
         
+        elif btn_id == "message_btn_vibration":
+            message_btn.text = ""
+            
+        message_btn.background_color = (1, 1, 1, 1)
+            
     def update_message_btn(self, resp):
         self.parent.parent.ids.message_btn.text = resp
         self.parent.parent.ids.message_btn.background_color = (0.8, 0, 0, 0.8)
         
+
+    def check_sensors(self):
+    
+        t = 0.5
+        
+        while True:
+            
+            self.flame_status = self.flameSensor.getFlameSensorState()
+            
+            if  self.flame_status == False:  # False means 'FLAME DETECTED'
+                
+                self.time_flameDetection = datetime.utcnow()
+                
+                if self.time_flameDetection - self.last_sent_time_flameDetection > self.delta:
+                    
+                    self.parent.parent.ids.message_btn_flame.text = "FLAME DETECTED!"
+                    self.parent.parent.ids.message_btn_flame.background_color = (0.8, 0, 0, 0.8)
+                    
+                    self.mqtt_driver.send_flameDetected(self.time_flameDetection)
+                    self.last_sent_time_flameDetection = self.time_flameDetection
+          
+                    
+            sleep(t)
+        
+
     def update_MessageRV(self, resp):
         
         data = self.parent.parent.ids.messageRV.data
@@ -567,7 +606,7 @@ class CradleGridLayout(GridLayout):
         
             if data.__len__() == 0:                
                
-                data.append({'id':self.btn_id, 'text':warning['time']+": "+warning['sub_msg'], 'halign':"left" })
+                data.append({ 'id':self.btn_id, 'text':warning['time']+": "+warning['sub_msg'] })
                 
                 self.mqtt_driver.client.publish("raspberry/warning", payload=json.dumps(warning), qos=0, retain=True)
                 
